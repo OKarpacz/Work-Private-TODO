@@ -21,7 +21,7 @@ export function Navigation({ currentScreen, onNavigate }: NavigationProps) {
   }
 
   return (
-    <div className="absolute bottom-0 left-0 right-0 bg-white border-t border-gray-200 safe-area-bottom">
+    <div className="absolute bottom-0 w-full max-w-md mx-auto bg-white border-t border-gray-200 safe-area-bottom">
       <div className="flex items-center justify-around px-4 py-3">
         {navItems.map(item => {
           const Icon = item.icon;
