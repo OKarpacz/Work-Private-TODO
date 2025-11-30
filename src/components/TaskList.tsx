@@ -88,10 +88,10 @@ export function TaskList({
   });
 
   return (
-    <div className="h-full flex flex-col bg-white">
+    <div className="h-full flex flex-col bg-white dark:bg-gray-800">
       <div className="p-6 pb-4">
         <div className="flex items-center justify-between mb-6">
-          <h1 className="text-gray-900">Zadania</h1>
+          <h1 className="text-gray-900 dark:text-gray-100">Zadania</h1>
           <button
             onClick={() => onNavigate('newTask')}
             className="w-10 h-10 rounded-full bg-purple-600 text-white flex items-center justify-center hover:bg-purple-700 transition-colors"
@@ -100,7 +100,7 @@ export function TaskList({
           </button>
         </div>
 
-        <div className="flex gap-2 overflow-x-auto pb-2 -mx-6 px-6 scrollbar-hide">
+        <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-hide">
           {categories.map(category => {
             const Icon = category.icon;
             const isActive = activeCategory === category.id;
@@ -126,11 +126,11 @@ export function TaskList({
       <div className="flex-1 overflow-y-auto px-6 pb-24">
         {sortedTasks.length === 0 ? (
           <div className="flex flex-col items-center justify-center h-full text-center py-12">
-            <div className="w-20 h-20 rounded-full bg-gray-100 flex items-center justify-center mb-4">
+            <div className="w-20 h-20 rounded-full bg-gray-100 dark:bg-gray-700 flex items-center justify-center mb-4">
               <CheckCircle2 size={40} className="text-gray-400" />
             </div>
-            <p className="text-gray-900 mb-2">Brak zadań</p>
-            <p className="text-gray-500 text-sm max-w-xs">
+            <p className="text-gray-900 dark:text-gray-100 mb-2">Brak zadań</p>
+            <p className="text-gray-500 dark:text-gray-400 text-sm max-w-xs">
               {activeCategory === 'all' 
                 ? 'Dodaj pierwsze zadanie, aby rozpocząć organizację dnia'
                 : 'Nie masz żadnych zadań w tej kategorii'}
@@ -147,7 +147,7 @@ export function TaskList({
                 <div
                   key={task.id}
                   onClick={() => onTaskClick(task)}
-                  className="bg-white border border-gray-200 rounded-2xl p-4 hover:shadow-md transition-all cursor-pointer"
+                  className="bg-white dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-2xl p-4 hover:shadow-md transition-all cursor-pointer"
                   style={{
                     opacity: task.completed ? 0.6 : 1,
                   }}
@@ -177,7 +177,7 @@ export function TaskList({
                     <div className="flex-1 min-w-0">
                       <div className="flex items-start justify-between gap-2 mb-2">
                         <p 
-                          className="text-gray-900"
+                          className="text-gray-900 dark:text-gray-100"
                           style={{
                             textDecoration: task.completed ? 'line-through' : 'none',
                           }}

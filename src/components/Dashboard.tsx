@@ -58,12 +58,12 @@ export function Dashboard({ tasks, hideWorkTasks, onNavigate, onCategorySelect }
   };
 
   return (
-    <div className="h-full flex flex-col bg-gradient-to-b from-purple-50 to-white overflow-y-auto">
+    <div className="h-full flex flex-col bg-gradient-to-b from-purple-50 to-white dark:from-gray-900 dark:to-gray-800 overflow-y-auto">
       <div className="p-6 pb-4">
         <div className="flex items-center justify-between mb-2">
           <div>
-            <h1 className="text-gray-900">Dashboard</h1>
-            <p className="text-gray-500 mt-1">
+            <h1 className="text-gray-900 dark:text-gray-100">Dashboard</h1>
+            <p className="text-gray-500 dark:text-gray-400 mt-1">
               {new Date().toLocaleDateString('pl-PL', { weekday: 'long', day: 'numeric', month: 'long' })}
             </p>
           </div>
@@ -90,26 +90,26 @@ export function Dashboard({ tasks, hideWorkTasks, onNavigate, onCategorySelect }
 
       <div className="px-6 pb-4">
         <div className="grid grid-cols-2 gap-3">
-          <div className="bg-white p-4 rounded-2xl shadow-sm border border-gray-100">
+          <div className="bg-white dark:bg-gray-700 p-4 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-600">
             <div className="flex items-center gap-2 mb-2">
-              <Calendar size={18} className="text-purple-600" />
-              <span className="text-gray-600">Dzisiaj</span>
+              <Calendar size={18} className="text-purple-600 dark:text-purple-400" />
+              <span className="text-gray-600 dark:text-gray-400">Dzisiaj</span>
             </div>
-            <p className="text-gray-900">{todayTasks.length}</p>
+            <p className="text-gray-900 dark:text-gray-100">{todayTasks.length}</p>
           </div>
 
-          <div className="bg-white p-4 rounded-2xl shadow-sm border border-gray-100">
+          <div className="bg-white dark:bg-gray-700 p-4 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-600">
             <div className="flex items-center gap-2 mb-2">
-              <TrendingUp size={18} className="text-red-600" />
-              <span className="text-gray-600">Priorytet</span>
+              <TrendingUp size={18} className="text-red-600 dark:text-red-400" />
+              <span className="text-gray-600 dark:text-gray-400">Priorytet</span>
             </div>
-            <p className="text-gray-900">{highPriorityTasks.length}</p>
+            <p className="text-gray-900 dark:text-gray-100">{highPriorityTasks.length}</p>
           </div>
         </div>
       </div>
 
       <div className="flex-1 px-6 pb-24">
-        <h2 className="text-gray-900 mb-4">Kategorie</h2>
+        <h2 className="text-gray-900 dark:text-gray-100 mb-4">Kategorie</h2>
         
         <div className="space-y-3">
           {categories.map(category => {
@@ -122,7 +122,7 @@ export function Dashboard({ tasks, hideWorkTasks, onNavigate, onCategorySelect }
               <button
                 key={category.id}
                 onClick={() => !isHidden && handleCategoryClick(category.id)}
-                className="w-full bg-white rounded-2xl p-5 shadow-sm border border-gray-100 hover:shadow-md transition-all disabled:opacity-50"
+                className="w-full bg-white dark:bg-gray-700 rounded-2xl p-5 shadow-sm border border-gray-100 dark:border-gray-600 hover:shadow-md transition-all disabled:opacity-50"
                 disabled={isHidden}
               >
                 <div className="flex items-center gap-4">
@@ -135,13 +135,13 @@ export function Dashboard({ tasks, hideWorkTasks, onNavigate, onCategorySelect }
                   
                   <div className="flex-1 text-left">
                     <div className="flex items-center justify-between mb-2">
-                      <span className="text-gray-900">{category.name}</span>
-                      <span className="text-gray-600">
+                      <span className="text-gray-900 dark:text-gray-100">{category.name}</span>
+                      <span className="text-gray-600 dark:text-gray-400">
                         {stats.completed}/{stats.total}
                       </span>
                     </div>
                     
-                    <div className="w-full h-2 bg-gray-100 rounded-full overflow-hidden">
+                    <div className="w-full h-2 bg-gray-100 dark:bg-gray-600 rounded-full overflow-hidden">
                       <div
                         className="h-full rounded-full transition-all duration-500"
                         style={{
@@ -152,7 +152,7 @@ export function Dashboard({ tasks, hideWorkTasks, onNavigate, onCategorySelect }
                     </div>
                     
                     {stats.pending > 0 && (
-                      <p className="text-gray-500 text-sm mt-2">
+                      <p className="text-gray-500 dark:text-gray-400 text-sm mt-2">
                         {stats.pending} {stats.pending === 1 ? 'zadanie' : 'zadań'} do wykonania
                       </p>
                     )}
