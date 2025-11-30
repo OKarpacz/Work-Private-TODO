@@ -27,6 +27,7 @@ export interface AppSettings {
   blockWorkTasksAfterHours: boolean;
   workHoursEnd: string;
   notifications: boolean;
+  darkMode: boolean;
 }
 
 type Screen = 'onboarding' | 'dashboard' | 'tasks' | 'taskDetails' | 'newTask' | 'weekly' | 'settings';
@@ -123,6 +124,7 @@ const initialSettings: AppSettings = {
   blockWorkTasksAfterHours: true,
   workHoursEnd: '16:00',
   notifications: true,
+  darkMode: false,
 };
 
 export default function App() {
@@ -136,11 +138,21 @@ export default function App() {
 
   useEffect(() => {
     const onboardingCompleted = localStorage.getItem('onboardingCompleted');
+    const savedDarkMode = localStorage.getItem('darkMode');
+    
     if (onboardingCompleted === 'true') {
       setHasCompletedOnboarding(true);
       setCurrentScreen('dashboard');
     }
+    
+    if (savedDarkMode === 'true') {
+      setSettings(prev => ({ ...prev, darkMode: true }));
+    }
   }, []);
+
+  useEffect(() => {
+    localStorage.setItem('darkMode', settings.darkMode.toString());
+  }, [settings.darkMode]);
 
   const completeOnboarding = () => {
     localStorage.setItem('onboardingCompleted', 'true');
@@ -221,8 +233,8 @@ export default function App() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
-      <div className="w-full max-w-md bg-white rounded-3xl shadow-2xl overflow-hidden" style={{ height: '812px', maxHeight: '90vh' }}>
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 flex items-center justify-center p-4">
+      <div className={`w-full max-w-md bg-white dark:bg-gray-800 rounded-3xl shadow-2xl overflow-hidden flex flex-col ${settings.darkMode ? 'dark' : ''}`} style={{ height: '812px', maxHeight: '90vh' }}>
         {currentScreen === 'onboarding' && (
           <Onboarding onComplete={completeOnboarding} />
         )}
