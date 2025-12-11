@@ -19,6 +19,9 @@ export function NewTask({ onBack, onSave, editingTask, onUpdate }: NewTaskProps)
   const [newUserName, setNewUserName] = useState('');
   const [showUserInput, setShowUserInput] = useState(false);
 
+  // dzisiejsza data w formacie YYYY-MM-DD – używana jako minimalny termin
+  const today = new Date().toISOString().split('T')[0];
+
   const categories = [
     { id: 'private', name: 'Private', icon: User, color: '#3B82F6', bgColor: '#EFF6FF' },
     { id: 'work', name: 'Work', icon: Briefcase, color: '#F59E0B', bgColor: '#FEF3C7' },
@@ -34,6 +37,12 @@ export function NewTask({ onBack, onSave, editingTask, onUpdate }: NewTaskProps)
   const handleSave = () => {
     if (!title.trim()) {
       alert('Podaj tytuł zadania');
+      return;
+    }
+
+    // dodatkowa walidacja – na wszelki wypadek, jeśli ktoś próbowałby obejść input
+    if (dueDate < today) {
+      alert('Nie możesz ustawić terminu w przeszłości');
       return;
     }
 
@@ -189,6 +198,7 @@ export function NewTask({ onBack, onSave, editingTask, onUpdate }: NewTaskProps)
               type="date"
               value={dueDate}
               onChange={(e) => setDueDate(e.target.value)}
+              min={today} // nie pozwoli wybrać daty sprzed dzisiaj
               className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
             />
           </div>
