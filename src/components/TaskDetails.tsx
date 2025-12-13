@@ -55,10 +55,9 @@ export function TaskDetails({ task, onBack, onEdit, onDelete, onToggleComplete }
   };
 
   return (
-    <div className="h-full flex flex-col bg-white dark:bg-gray-900">
-      
+    <div className="h-full flex flex-col bg-white dark:bg-gray-800">
       <div 
-        className="p-6 pb-8 dark:bg-opacity-40"
+        className="p-6 pb-8"
         style={{ backgroundColor: categoryInfo.bgColor }}
       >
         <div className="flex items-center justify-between mb-6">
@@ -78,9 +77,9 @@ export function TaskDetails({ task, onBack, onEdit, onDelete, onToggleComplete }
             </button>
             <button
               onClick={handleDelete}
-              className="w-10 h-10 rounded-full bg-white dark:bg-gray-700 shadow-sm flex items-center justify-center hover:bg-red-50 dark:hover:bg-red-600/20 transition-colors"
+              className="w-10 h-10 rounded-full bg-white dark:bg-gray-700 shadow-sm flex items-center justify-center hover:bg-red-50 dark:hover:bg-red-900/30 transition-colors"
             >
-              <Trash2 size={18} className="text-red-600 dark:text-red-400" />
+              <Trash2 size={18} className="text-red-600 dark:text-red-300" />
             </button>
           </div>
         </div>
@@ -107,14 +106,13 @@ export function TaskDetails({ task, onBack, onEdit, onDelete, onToggleComplete }
 
           <div className="flex-1">
             <h1 
-              className="text-gray-900 dark:text-gray-100 mb-2"
+              className="text-gray-900 mb-2"
               style={{
                 textDecoration: task.completed ? 'line-through' : 'none',
               }}
             >
               {task.title}
             </h1>
-
             <div
               className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-sm"
               style={{
@@ -131,7 +129,6 @@ export function TaskDetails({ task, onBack, onEdit, onDelete, onToggleComplete }
 
       <div className="flex-1 overflow-y-auto px-6 py-6 pb-24">
         <div className="space-y-6">
-
           <div>
             <div className="flex items-center gap-2 mb-3 text-gray-600 dark:text-gray-400">
               <Calendar size={20} />
@@ -183,7 +180,7 @@ export function TaskDetails({ task, onBack, onEdit, onDelete, onToggleComplete }
                     >
                       {user.charAt(0).toUpperCase()}
                     </div>
-                    <span className="text-gray-900 dark:text-gray-200">{user}</span>
+                    <span className="text-gray-900 dark:text-gray-100">{user}</span>
                   </div>
                 ))}
               </div>
@@ -207,7 +204,6 @@ export function TaskDetails({ task, onBack, onEdit, onDelete, onToggleComplete }
               Utworzono: {formatDate(task.createdAt)}
             </p>
           </div>
-
         </div>
       </div>
     </div>

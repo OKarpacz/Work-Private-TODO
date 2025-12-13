@@ -1,5 +1,5 @@
 import React from 'react';
-import { Plus, Filter, CheckCircle2, Circle, User, Briefcase, Home, Clock } from 'lucide-react';
+import { Plus, Filter, CheckCircle2, Circle, User, Briefcase, Home, Clock, ArrowLeft } from 'lucide-react';
 import { Task, TaskCategory } from '../App';
 
 interface TaskListProps {
@@ -91,7 +91,15 @@ export function TaskList({
     <div className="h-full flex flex-col bg-white dark:bg-gray-800">
       <div className="p-6 pb-4">
         <div className="flex items-center justify-between mb-6">
-          <h1 className="text-gray-900 dark:text-gray-100">Zadania</h1>
+          <div className="flex items-center gap-3">
+            <button
+              onClick={() => onNavigate('dashboard')}
+              className="w-10 h-10 rounded-full bg-gray-100 dark:bg-gray-700 flex items-center justify-center hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors"
+            >
+              <ArrowLeft size={20} className="text-gray-700 dark:text-gray-300" />
+            </button>
+            <h1 className="text-gray-900 dark:text-gray-100">Zadania</h1>
+          </div>
           <button
             onClick={() => onNavigate('newTask')}
             className="w-10 h-10 rounded-full bg-purple-600 text-white flex items-center justify-center hover:bg-purple-700 transition-colors"

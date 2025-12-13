@@ -1,14 +1,15 @@
 import React from 'react';
-import { ArrowLeft, Clock, Bell, Shield, Moon, Smartphone } from 'lucide-react';
+import { ArrowLeft, Clock, Bell, Shield, Moon, Smartphone, LogOut } from 'lucide-react';
 import { AppSettings } from '../App';
 
 interface SettingsProps {
   settings: AppSettings;
   onUpdateSettings: (settings: Partial<AppSettings>) => void;
   onNavigate: (screen: any) => void;
+  onLogout?: () => void;
 }
 
-export function Settings({ settings, onUpdateSettings, onNavigate }: SettingsProps) {
+export function Settings({ settings, onUpdateSettings, onNavigate, onLogout }: SettingsProps) {
   const timeOptions = [
     '15:00', '15:30', '16:00', '16:30', '17:00', '17:30', '18:00', '18:30', '19:00'
   ];
@@ -19,9 +20,9 @@ export function Settings({ settings, onUpdateSettings, onNavigate }: SettingsPro
         <div className="flex items-center gap-4 mb-4">
           <button
             onClick={() => onNavigate('dashboard')}
-            className="w-10 h-10 rounded-full bg-white bg-opacity-20 flex items-center justify-center hover:bg-opacity-30 transition-all"
+            className="w-10 h-10 rounded-full bg-white dark:bg-white/90 shadow-sm flex items-center justify-center hover:bg-white/90 dark:hover:bg-white transition-all"
           >
-            <ArrowLeft size={20} className="text-white" />
+            <ArrowLeft size={20} className="text-purple-600" />
           </button>
           <h1 className="text-white">Ustawienia</h1>
         </div>
@@ -205,6 +206,23 @@ export function Settings({ settings, onUpdateSettings, onNavigate }: SettingsPro
           </div>
 
           <div className="pt-6 border-t border-gray-200 dark:border-gray-700">
+            {onLogout && (
+              <button 
+                onClick={onLogout}
+                className="w-full bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-2xl p-4 text-left hover:bg-red-100 dark:hover:bg-red-900/30 transition-colors mb-6"
+              >
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-xl bg-red-100 dark:bg-red-900/40 flex items-center justify-center">
+                    <LogOut size={20} className="text-red-600 dark:text-red-400" />
+                  </div>
+                  <div className="flex-1">
+                    <p className="text-red-900 dark:text-red-100">Wyloguj się</p>
+                    <p className="text-red-600 dark:text-red-400 text-sm">Bezpiecznie zakończ sesję</p>
+                  </div>
+                </div>
+              </button>
+            )}
+            
             <p className="text-center text-gray-500 dark:text-gray-400 text-sm">
               Dbaj o równowagę między pracą a życiem prywatnym 💜
             </p>
