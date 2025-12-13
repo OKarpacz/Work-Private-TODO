@@ -81,41 +81,41 @@ export function WeeklyWidget({ tasks, hideWorkTasks, onNavigate }: WeeklyWidgetP
   const stats = getWeekStats();
 
   return (
-    <div className="h-full flex flex-col bg-gradient-to-b from-purple-50 to-white">
+    <div className="h-full flex flex-col bg-gradient-to-b from-purple-50 to-white dark:from-gray-900 dark:to-gray-800">
       <div className="p-6 pb-4">
         <div className="flex items-center gap-4 mb-4">
           <button
             onClick={() => onNavigate('dashboard')}
-            className="w-10 h-10 rounded-full bg-white shadow-sm flex items-center justify-center hover:bg-gray-50 transition-colors"
+            className="w-10 h-10 rounded-full bg-white dark:bg-gray-700 shadow-sm flex items-center justify-center hover:bg-gray-50 dark:hover:bg-gray-600 transition-colors"
           >
-            <ArrowLeft size={20} className="text-gray-700" />
+            <ArrowLeft size={20} className="text-gray-700 dark:text-gray-300" />
           </button>
-          <h1 className="text-gray-900">Widok tygodniowy</h1>
+          <h1 className="text-gray-900 dark:text-gray-100">Widok tygodniowy</h1>
         </div>
 
         <div className="grid grid-cols-3 gap-3">
-          <div className="bg-white p-4 rounded-2xl shadow-sm border border-gray-100">
+          <div className="bg-white dark:bg-gray-700 p-4 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-600">
             <div className="flex items-center gap-2 mb-1">
-              <Calendar size={16} className="text-purple-600" />
-              <span className="text-gray-600 text-sm">Wszystkie</span>
+              <Calendar size={16} className="text-purple-600 dark:text-purple-400" />
+              <span className="text-gray-600 dark:text-gray-400 text-sm">Wszystkie</span>
             </div>
-            <p className="text-gray-900">{stats.total}</p>
+            <p className="text-gray-900 dark:text-gray-100">{stats.total}</p>
           </div>
 
-          <div className="bg-white p-4 rounded-2xl shadow-sm border border-gray-100">
+          <div className="bg-white dark:bg-gray-700 p-4 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-600">
             <div className="flex items-center gap-2 mb-1">
-              <TrendingUp size={16} className="text-green-600" />
-              <span className="text-gray-600 text-sm">Ukończone</span>
+              <TrendingUp size={16} className="text-green-600 dark:text-green-400" />
+              <span className="text-gray-600 dark:text-gray-400 text-sm">Ukończone</span>
             </div>
-            <p className="text-gray-900">{stats.completed}</p>
+            <p className="text-gray-900 dark:text-gray-100">{stats.completed}</p>
           </div>
 
-          <div className="bg-white p-4 rounded-2xl shadow-sm border border-gray-100">
+          <div className="bg-white dark:bg-gray-700 p-4 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-600">
             <div className="flex items-center gap-2 mb-1">
-              <TrendingUp size={16} className="text-red-600" />
-              <span className="text-gray-600 text-sm">Priorytet</span>
+              <TrendingUp size={16} className="text-red-600 dark:text-red-400" />
+              <span className="text-gray-600 dark:text-gray-400 text-sm">Priorytet</span>
             </div>
-            <p className="text-gray-900">{stats.highPriority}</p>
+            <p className="text-gray-900 dark:text-gray-100">{stats.highPriority}</p>
           </div>
         </div>
       </div>
@@ -131,24 +131,24 @@ export function WeeklyWidget({ tasks, hideWorkTasks, onNavigate }: WeeklyWidgetP
             return (
               <div
                 key={index}
-                className="bg-white rounded-2xl overflow-hidden shadow-sm border border-gray-100"
+                className="bg-white dark:bg-gray-700 rounded-2xl overflow-hidden shadow-sm border border-gray-100 dark:border-gray-600"
               >
                 <div 
                   className="px-4 py-3 flex items-center justify-between"
                   style={{
-                    backgroundColor: isToday ? '#8B5CF6' : '#F9FAFB',
+                    backgroundColor: isToday ? '#8B5CF6' : undefined,
                   }}
                 >
                   <div className="flex items-center gap-3">
                     <div className="text-center">
                       <p 
                         className="text-xs"
-                        style={{ color: isToday ? '#E9D5FF' : '#9CA3AF' }}
+                        style={{ color: isToday ? '#E9D5FF' : undefined }}
                       >
                         {getDayName(day)}
                       </p>
                       <p 
-                        className={isToday ? 'text-white' : 'text-gray-900'}
+                        className={isToday ? 'text-white' : 'text-gray-900 dark:text-gray-100'}
                       >
                         {getDayNumber(day)}
                       </p>
@@ -159,7 +159,7 @@ export function WeeklyWidget({ tasks, hideWorkTasks, onNavigate }: WeeklyWidgetP
                       </div>
                     )}
                   </div>
-                  <div className={isToday ? 'text-white' : 'text-gray-600'}>
+                  <div className={isToday ? 'text-white' : 'text-gray-600 dark:text-gray-400'}>
                     {dayTasks.length} {dayTasks.length === 1 ? 'zadanie' : 'zadań'}
                   </div>
                 </div>
@@ -174,7 +174,7 @@ export function WeeklyWidget({ tasks, hideWorkTasks, onNavigate }: WeeklyWidgetP
                         <button
                           key={task.id}
                           onClick={() => onNavigate('taskDetails', task)}
-                          className="w-full flex items-start gap-3 p-3 rounded-xl bg-gray-50 hover:bg-gray-100 transition-colors text-left"
+                          className="w-full flex items-start gap-3 p-3 rounded-xl bg-gray-50 dark:bg-gray-600 hover:bg-gray-100 dark:hover:bg-gray-500 transition-colors text-left"
                         >
                           <div
                             className="w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0"
@@ -183,7 +183,7 @@ export function WeeklyWidget({ tasks, hideWorkTasks, onNavigate }: WeeklyWidgetP
                             <CategoryIcon size={16} style={{ color: categoryColor }} />
                           </div>
                           <div className="flex-1 min-w-0">
-                            <p className="text-gray-900 truncate">
+                            <p className="text-gray-900 dark:text-gray-100 truncate">
                               {task.title}
                             </p>
                             <div className="flex items-center gap-2 mt-1">
@@ -204,7 +204,7 @@ export function WeeklyWidget({ tasks, hideWorkTasks, onNavigate }: WeeklyWidgetP
                   </div>
                 ) : (
                   <div className="p-4 text-center">
-                    <p className="text-gray-400 text-sm">
+                    <p className="text-gray-400 dark:text-gray-500 text-sm">
                       {isPast ? 'Brak zadań tego dnia' : 'Brak zaplanowanych zadań'}
                     </p>
                   </div>
