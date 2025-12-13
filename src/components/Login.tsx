@@ -15,7 +15,6 @@ export function Login({ onLogin, darkMode }: LoginProps) {
     e.preventDefault();
     setIsLoading(true);
     
-    // Symulacja logowania
     setTimeout(() => {
       setIsLoading(false);
       onLogin();
@@ -30,9 +29,7 @@ export function Login({ onLogin, darkMode }: LoginProps) {
 
   return (
     <div className="h-full flex flex-col bg-white dark:bg-gray-800 overflow-hidden">
-      {/* Header z gradientem */}
       <div className="relative overflow-hidden px-8 pt-16 pb-12">
-        {/* Tło z delikatnymi kółkami w kolorach kategorii */}
         <div className="absolute inset-0 overflow-hidden">
           <div 
             className="absolute w-64 h-64 rounded-full blur-3xl opacity-20"
@@ -52,7 +49,6 @@ export function Login({ onLogin, darkMode }: LoginProps) {
           />
         </div>
 
-        {/* Logo i tytuł */}
         <div className="relative z-10 text-center">
           <div className="flex justify-center gap-3 mb-6">
             {categories.map((cat, index) => {
@@ -78,10 +74,8 @@ export function Login({ onLogin, darkMode }: LoginProps) {
         </div>
       </div>
 
-      {/* Formularz logowania */}
       <div className="flex-1 px-8 pb-8">
         <form onSubmit={handleSubmit} className="space-y-5">
-          {/* Email */}
           <div>
             <label className="block text-gray-700 dark:text-gray-300 mb-2">
               Email
@@ -101,7 +95,6 @@ export function Login({ onLogin, darkMode }: LoginProps) {
             </div>
           </div>
 
-          {/* Hasło */}
           <div>
             <label className="block text-gray-700 dark:text-gray-300 mb-2">
               Hasło
@@ -121,7 +114,6 @@ export function Login({ onLogin, darkMode }: LoginProps) {
             </div>
           </div>
 
-          {/* Link do odzyskiwania hasła */}
           <div className="text-right">
             <button
               type="button"
@@ -131,7 +123,6 @@ export function Login({ onLogin, darkMode }: LoginProps) {
             </button>
           </div>
 
-          {/* Przycisk logowania */}
           <button
             type="submit"
             disabled={isLoading}
@@ -154,7 +145,6 @@ export function Login({ onLogin, darkMode }: LoginProps) {
           </button>
         </form>
 
-        {/* Rejestracja */}
         <div className="mt-8 text-center">
           <p className="text-gray-600 dark:text-gray-400">
             Nie masz konta?{' '}
@@ -164,7 +154,6 @@ export function Login({ onLogin, darkMode }: LoginProps) {
           </p>
         </div>
 
-        {/* Features */}
         <div className="mt-12 space-y-4">
           {[
             { text: 'Zarządzaj zadaniami prywatnymi, służbowymi i domowymi', color: '#3B82F6' },
