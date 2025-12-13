@@ -55,7 +55,7 @@ export function TaskDetails({ task, onBack, onEdit, onDelete, onToggleComplete }
   };
 
   return (
-    <div className="h-full flex flex-col bg-white dark:bg-gray-800">
+    <div className="h-full flex flex-col bg-white">
       <div 
         className="p-6 pb-8"
         style={{ backgroundColor: categoryInfo.bgColor }}
@@ -63,23 +63,23 @@ export function TaskDetails({ task, onBack, onEdit, onDelete, onToggleComplete }
         <div className="flex items-center justify-between mb-6">
           <button
             onClick={onBack}
-            className="w-10 h-10 rounded-full bg-white dark:bg-gray-700 shadow-sm flex items-center justify-center hover:bg-gray-50 dark:hover:bg-gray-600 transition-colors"
+            className="w-10 h-10 rounded-full bg-white shadow-sm flex items-center justify-center hover:bg-gray-50 transition-colors"
           >
-            <ArrowLeft size={20} className="text-gray-700 dark:text-gray-300" />
+            <ArrowLeft size={20} className="text-gray-700" />
           </button>
 
           <div className="flex items-center gap-2">
             <button
               onClick={() => onEdit(task)}
-              className="w-10 h-10 rounded-full bg-white dark:bg-gray-700 shadow-sm flex items-center justify-center hover:bg-gray-50 dark:hover:bg-gray-600 transition-colors"
+              className="w-10 h-10 rounded-full bg-white shadow-sm flex items-center justify-center hover:bg-gray-50 transition-colors"
             >
-              <Edit2 size={18} className="text-gray-700 dark:text-gray-300" />
+              <Edit2 size={18} className="text-gray-700" />
             </button>
             <button
               onClick={handleDelete}
-              className="w-10 h-10 rounded-full bg-white dark:bg-gray-700 shadow-sm flex items-center justify-center hover:bg-red-50 dark:hover:bg-red-900/30 transition-colors"
+              className="w-10 h-10 rounded-full bg-white shadow-sm flex items-center justify-center hover:bg-red-50 transition-colors"
             >
-              <Trash2 size={18} className="text-red-600 dark:text-red-300" />
+              <Trash2 size={18} className="text-red-600" />
             </button>
           </div>
         </div>
@@ -130,17 +130,17 @@ export function TaskDetails({ task, onBack, onEdit, onDelete, onToggleComplete }
       <div className="flex-1 overflow-y-auto px-6 py-6 pb-24">
         <div className="space-y-6">
           <div>
-            <div className="flex items-center gap-2 mb-3 text-gray-600 dark:text-gray-400">
+            <div className="flex items-center gap-2 mb-3 text-gray-600">
               <Calendar size={20} />
               <span>Termin</span>
             </div>
-            <div className="bg-gray-50 dark:bg-gray-700 rounded-xl p-4">
-              <p className="text-gray-900 dark:text-gray-100">{formatDate(task.dueDate)}</p>
+            <div className="bg-gray-50 rounded-xl p-4">
+              <p className="text-gray-900">{formatDate(task.dueDate)}</p>
             </div>
           </div>
 
           <div>
-            <div className="flex items-center gap-2 mb-3 text-gray-600 dark:text-gray-400">
+            <div className="flex items-center gap-2 mb-3 text-gray-600">
               <Flag size={20} />
               <span>Priorytet</span>
             </div>
@@ -161,7 +161,7 @@ export function TaskDetails({ task, onBack, onEdit, onDelete, onToggleComplete }
 
           {task.assignedUsers && task.assignedUsers.length > 0 && (
             <div>
-              <div className="flex items-center gap-2 mb-3 text-gray-600 dark:text-gray-400">
+              <div className="flex items-center gap-2 mb-3 text-gray-600">
                 <User size={20} />
                 <span>Przypisani użytkownicy</span>
               </div>
@@ -169,7 +169,7 @@ export function TaskDetails({ task, onBack, onEdit, onDelete, onToggleComplete }
                 {task.assignedUsers.map((user, index) => (
                   <div
                     key={index}
-                    className="flex items-center gap-3 bg-gray-50 dark:bg-gray-700 rounded-xl p-3"
+                    className="flex items-center gap-3 bg-gray-50 rounded-xl p-3"
                   >
                     <div 
                       className="w-10 h-10 rounded-full flex items-center justify-center"
@@ -180,7 +180,7 @@ export function TaskDetails({ task, onBack, onEdit, onDelete, onToggleComplete }
                     >
                       {user.charAt(0).toUpperCase()}
                     </div>
-                    <span className="text-gray-900 dark:text-gray-100">{user}</span>
+                    <span className="text-gray-900">{user}</span>
                   </div>
                 ))}
               </div>
@@ -188,19 +188,19 @@ export function TaskDetails({ task, onBack, onEdit, onDelete, onToggleComplete }
           )}
 
           <div>
-            <div className="flex items-center gap-2 mb-3 text-gray-600 dark:text-gray-400">
+            <div className="flex items-center gap-2 mb-3 text-gray-600">
               <Edit2 size={20} />
               <span>Opis</span>
             </div>
-            <div className="bg-gray-50 dark:bg-gray-700 rounded-xl p-4">
-              <p className="text-gray-700 dark:text-gray-300 leading-relaxed">
+            <div className="bg-gray-50 rounded-xl p-4">
+              <p className="text-gray-700 leading-relaxed">
                 {task.description || 'Brak opisu'}
               </p>
             </div>
           </div>
 
-          <div className="pt-4 border-t border-gray-200 dark:border-gray-700">
-            <p className="text-gray-500 dark:text-gray-400 text-sm">
+          <div className="pt-4 border-t border-gray-200">
+            <p className="text-gray-500 text-sm">
               Utworzono: {formatDate(task.createdAt)}
             </p>
           </div>

@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from 'react';
-import { Login } from './components/Login';
 import { Onboarding } from './components/Onboarding';
 import { Dashboard } from './components/Dashboard';
 import { TaskList } from './components/TaskList';
@@ -28,10 +27,9 @@ export interface AppSettings {
   blockWorkTasksAfterHours: boolean;
   workHoursEnd: string;
   notifications: boolean;
-  darkMode: boolean;
 }
 
-type Screen = 'login' | 'onboarding' | 'dashboard' | 'tasks' | 'taskDetails' | 'newTask' | 'weekly' | 'settings';
+type Screen = 'onboarding' | 'dashboard' | 'tasks' | 'taskDetails' | 'newTask' | 'weekly' | 'settings';
 
 const initialTasks: Task[] = [
   {
@@ -125,54 +123,24 @@ const initialSettings: AppSettings = {
   blockWorkTasksAfterHours: true,
   workHoursEnd: '16:00',
   notifications: true,
-  darkMode: false,
 };
 
 export default function App() {
-  const [currentScreen, setCurrentScreen] = useState<Screen>('login');
+  const [currentScreen, setCurrentScreen] = useState<Screen>('onboarding');
   const [tasks, setTasks] = useState<Task[]>(initialTasks);
   const [selectedTask, setSelectedTask] = useState<Task | null>(null);
   const [editingTask, setEditingTask] = useState<Task | null>(null);
   const [settings, setSettings] = useState<AppSettings>(initialSettings);
   const [activeCategory, setActiveCategory] = useState<TaskCategory | 'all'>('all');
   const [hasCompletedOnboarding, setHasCompletedOnboarding] = useState(false);
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
 
   useEffect(() => {
-    const loggedIn = localStorage.getItem('isLoggedIn');
     const onboardingCompleted = localStorage.getItem('onboardingCompleted');
-    const savedDarkMode = localStorage.getItem('darkMode');
-    
-    if (loggedIn === 'true') {
-      setIsLoggedIn(true);
-      if (onboardingCompleted === 'true') {
-        setHasCompletedOnboarding(true);
-        setCurrentScreen('dashboard');
-      } else {
-        setCurrentScreen('onboarding');
-      }
-    }
-    
-    if (savedDarkMode === 'true') {
-      setSettings(prev => ({ ...prev, darkMode: true }));
+    if (onboardingCompleted === 'true') {
+      setHasCompletedOnboarding(true);
+      setCurrentScreen('dashboard');
     }
   }, []);
-
-  useEffect(() => {
-    localStorage.setItem('darkMode', settings.darkMode.toString());
-  }, [settings.darkMode]);
-
-  const handleLogin = () => {
-    localStorage.setItem('isLoggedIn', 'true');
-    setIsLoggedIn(true);
-    setCurrentScreen('onboarding');
-  };
-
-  const handleLogout = () => {
-    localStorage.removeItem('isLoggedIn');
-    setIsLoggedIn(false);
-    setCurrentScreen('login');
-  };
 
   const completeOnboarding = () => {
     localStorage.setItem('onboardingCompleted', 'true');
@@ -253,12 +221,8 @@ export default function App() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 flex items-center justify-center p-4">
-      <div className={`w-full max-w-md bg-white dark:bg-gray-800 rounded-3xl shadow-2xl overflow-hidden flex flex-col ${settings.darkMode ? 'dark' : ''}`} style={{ height: '812px', maxHeight: '90vh' }}>
-        {currentScreen === 'login' && (
-          <Login onLogin={handleLogin} darkMode={settings.darkMode} />
-        )}
-        
+    <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
+      <div className="w-full max-w-md bg-white rounded-3xl shadow-2xl overflow-hidden" style={{ height: '812px', maxHeight: '90vh' }}>
         {currentScreen === 'onboarding' && (
           <Onboarding onComplete={completeOnboarding} />
         )}
@@ -315,11 +279,10 @@ export default function App() {
             settings={settings}
             onUpdateSettings={updateSettings}
             onNavigate={navigateTo}
-            onLogout={handleLogout}
           />
         )}
         
-        {hasCompletedOnboarding && currentScreen !== 'onboarding' && currentScreen !== 'login' && (
+        {hasCompletedOnboarding && currentScreen !== 'onboarding' && (
           <Navigation 
             currentScreen={currentScreen}
             onNavigate={navigateTo}
