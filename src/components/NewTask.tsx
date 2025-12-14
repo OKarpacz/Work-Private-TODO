@@ -19,6 +19,8 @@ export function NewTask({ onBack, onSave, editingTask, onUpdate }: NewTaskProps)
   const [newUserName, setNewUserName] = useState('');
   const [showUserInput, setShowUserInput] = useState(false);
 
+  const today = new Date().toISOString().split('T')[0];
+
   const categories = [
     { id: 'private', name: 'Private', icon: User, color: '#3B82F6', bgColor: '#EFF6FF', darkBg: '#1E40AF', darkText: '#BFDBFE' },
     { id: 'work', name: 'Work', icon: Briefcase, color: '#F59E0B', bgColor: '#FEF3C7', darkBg: '#78350F', darkText: '#FCD34D' },
@@ -34,6 +36,11 @@ export function NewTask({ onBack, onSave, editingTask, onUpdate }: NewTaskProps)
   const handleSave = () => {
     if (!title.trim()) {
       alert('Podaj tytuł zadania');
+      return;
+    }
+
+    if (dueDate < today) {
+      alert('Nie możesz ustawić terminu w przeszłości');
       return;
     }
 
@@ -189,6 +196,7 @@ export function NewTask({ onBack, onSave, editingTask, onUpdate }: NewTaskProps)
               type="date"
               value={dueDate}
               onChange={(e) => setDueDate(e.target.value)}
+              min={today}
               className="w-full px-4 py-3 bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent dark:text-gray-100"
             />
           </div>
