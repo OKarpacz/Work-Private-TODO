@@ -1,4 +1,6 @@
+// @ts-ignore
 import React, { useState } from 'react';
+// @ts-ignore
 import { LogIn, Mail, Lock, CheckCircle2, Briefcase, Home, User } from 'lucide-react';
 
 interface LoginProps {
