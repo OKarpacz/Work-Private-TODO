@@ -33,93 +33,7 @@ export interface AppSettings {
 
 type Screen = 'login' | 'onboarding' | 'dashboard' | 'tasks' | 'taskDetails' | 'newTask' | 'weekly' | 'settings';
 
-const initialTasks: Task[] = [
-  {
-    id: '1',
-    title: 'Medytacja poranna',
-    description: '15 minut medytacji i ćwiczeń oddechowych',
-    category: 'private',
-    priority: 'high',
-    dueDate: '2025-11-29',
-    completed: false,
-    createdAt: '2025-11-28',
-  },
-  {
-    id: '2',
-    title: 'Prezentacja Q4',
-    description: 'Przygotować slajdy na spotkanie zarządu',
-    category: 'work',
-    priority: 'high',
-    dueDate: '2025-11-30',
-    completed: false,
-    assignedUsers: ['Ty', 'Anna K.', 'Piotr M.'],
-    createdAt: '2025-11-25',
-  },
-  {
-    id: '3',
-    title: 'Zakupy spożywcze',
-    description: 'Mleko, chleb, warzywa na obiad',
-    category: 'home',
-    priority: 'medium',
-    dueDate: '2025-11-29',
-    completed: false,
-    assignedUsers: ['Ty', 'Partner'],
-    createdAt: '2025-11-29',
-  },
-  {
-    id: '4',
-    title: 'Przeczytać książkę',
-    description: 'Rozdział 5-7 z "Atomic Habits"',
-    category: 'private',
-    priority: 'low',
-    dueDate: '2025-12-01',
-    completed: true,
-    createdAt: '2025-11-27',
-  },
-  {
-    id: '5',
-    title: 'Code review - PR #234',
-    description: 'Sprawdzić zmiany w module autoryzacji',
-    category: 'work',
-    priority: 'medium',
-    dueDate: '2025-11-29',
-    completed: false,
-    assignedUsers: ['Ty'],
-    createdAt: '2025-11-29',
-  },
-  {
-    id: '6',
-    title: 'Naprawić kran w łazience',
-    description: 'Wymienić uszczelkę, kupić części w sklepie',
-    category: 'home',
-    priority: 'high',
-    dueDate: '2025-11-30',
-    completed: false,
-    assignedUsers: ['Ty'],
-    createdAt: '2025-11-28',
-  },
-  {
-    id: '7',
-    title: 'Trening na siłowni',
-    description: 'Dzień klatki piersiowej i tricepsów',
-    category: 'private',
-    priority: 'medium',
-    dueDate: '2025-11-29',
-    completed: false,
-    createdAt: '2025-11-29',
-  },
-  {
-    id: '8',
-    title: 'Spotkanie z klientem',
-    description: 'Omówienie wymagań do nowego projektu',
-    category: 'work',
-    priority: 'high',
-    dueDate: '2025-12-02',
-    completed: false,
-    assignedUsers: ['Ty', 'Marcin D.'],
-    createdAt: '2025-11-28',
-  },
-];
+const API_URL = 'http://localhost:5000/api/tasks';
 
 const initialSettings: AppSettings = {
   blockWorkTasksAfterHours: true,
@@ -130,7 +44,7 @@ const initialSettings: AppSettings = {
 
 export default function App() {
   const [currentScreen, setCurrentScreen] = useState<Screen>('login');
-  const [tasks, setTasks] = useState<Task[]>(initialTasks);
+  const [tasks, setTasks] = useState<Task[]>([]);
   const [selectedTask, setSelectedTask] = useState<Task | null>(null);
   const [editingTask, setEditingTask] = useState<Task | null>(null);
   const [settings, setSettings] = useState<AppSettings>(initialSettings);
@@ -156,11 +70,25 @@ export default function App() {
     if (savedDarkMode === 'true') {
       setSettings(prev => ({ ...prev, darkMode: true }));
     }
+
+    fetchTasks();
   }, []);
 
   useEffect(() => {
     localStorage.setItem('darkMode', settings.darkMode.toString());
   }, [settings.darkMode]);
+
+  const fetchTasks = async () => {
+    try {
+      const response = await fetch(API_URL);
+      if (response.ok) {
+        const data = await response.json();
+        setTasks(data);
+      }
+    } catch (error) {
+      console.error('Error fetching tasks:', error);
+    }
+  };
 
   const handleLogin = () => {
     localStorage.setItem('isLoggedIn', 'true');
@@ -192,32 +120,68 @@ export default function App() {
     setCurrentScreen(screen);
   };
 
-  const addTask = (task: Omit<Task, 'id' | 'createdAt'>) => {
-    const newTask: Task = {
-      ...task,
-      id: Date.now().toString(),
-      createdAt: new Date().toISOString().split('T')[0],
-    };
-    setTasks([...tasks, newTask]);
-    setCurrentScreen('tasks');
-  };
-
-  const updateTask = (taskId: string, updates: Partial<Task>) => {
-    setTasks(tasks.map(t => t.id === taskId ? { ...t, ...updates } : t));
-    if (selectedTask?.id === taskId) {
-      setSelectedTask({ ...selectedTask, ...updates });
+  const addTask = async (task: Omit<Task, 'id' | 'createdAt'>) => {
+    try {
+      const response = await fetch(API_URL, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(task),
+      });
+      
+      if (response.ok) {
+        const newTask = await response.json();
+        setTasks([...tasks, newTask]);
+        setCurrentScreen('tasks');
+      }
+    } catch (error) {
+      console.error('Error adding task:', error);
     }
   };
 
-  const deleteTask = (taskId: string) => {
-    setTasks(tasks.filter(t => t.id !== taskId));
-    setCurrentScreen('tasks');
+  const updateTask = async (taskId: string, updates: Partial<Task>) => {
+    try {
+      const response = await fetch(`${API_URL}/${taskId}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(updates),
+      });
+
+      if (response.ok) {
+        const updatedTask = await response.json();
+        setTasks(tasks.map(t => t.id === taskId ? updatedTask : t));
+        if (selectedTask?.id === taskId) {
+          setSelectedTask(updatedTask);
+        }
+      }
+    } catch (error) {
+      console.error('Error updating task:', error);
+    }
   };
 
-  const toggleTaskComplete = (taskId: string) => {
-    setTasks(tasks.map(t => 
-      t.id === taskId ? { ...t, completed: !t.completed } : t
-    ));
+  const deleteTask = async (taskId: string) => {
+    try {
+      const response = await fetch(`${API_URL}/${taskId}`, {
+        method: 'DELETE',
+      });
+
+      if (response.ok) {
+        setTasks(tasks.filter(t => t.id !== taskId));
+        setCurrentScreen('tasks');
+      }
+    } catch (error) {
+      console.error('Error deleting task:', error);
+    }
+  };
+
+  const toggleTaskComplete = async (taskId: string) => {
+    const task = tasks.find(t => t.id === taskId);
+    if (task) {
+      await updateTask(taskId, { completed: !task.completed });
+    }
   };
 
   const updateSettings = (newSettings: Partial<AppSettings>) => {
