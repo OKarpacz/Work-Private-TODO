@@ -6,6 +6,7 @@ import { TaskList } from './components/TaskList';
 import { TaskDetails } from './components/TaskDetails';
 import { NewTask } from './components/NewTask';
 import { WeeklyWidget } from './components/WeeklyWidget';
+import { YearlyView } from './components/YearlyView';
 import { Settings } from './components/Settings';
 import { Navigation } from './components/Navigation';
 
@@ -19,6 +20,7 @@ export interface Task {
   category: TaskCategory;
   priority: TaskPriority;
   dueDate: string;
+  dueTime?: string;
   completed: boolean;
   assignedUsers?: string[];
   createdAt: string;
@@ -31,7 +33,7 @@ export interface AppSettings {
   darkMode: boolean;
 }
 
-type Screen = 'login' | 'onboarding' | 'dashboard' | 'tasks' | 'taskDetails' | 'newTask' | 'weekly' | 'settings';
+type Screen = 'login' | 'onboarding' | 'dashboard' | 'tasks' | 'taskDetails' | 'newTask' | 'weekly' | 'yearly' | 'settings';
 
 const initialTasks: Task[] = [
   {
@@ -40,9 +42,10 @@ const initialTasks: Task[] = [
     description: '15 minut medytacji i ćwiczeń oddechowych',
     category: 'private',
     priority: 'high',
-    dueDate: '2025-11-29',
+    dueDate: '2026-01-04',
+    dueTime: '07:00',
     completed: false,
-    createdAt: '2025-11-28',
+    createdAt: '2026-01-03',
   },
   {
     id: '2',
@@ -50,10 +53,11 @@ const initialTasks: Task[] = [
     description: 'Przygotować slajdy na spotkanie zarządu',
     category: 'work',
     priority: 'high',
-    dueDate: '2025-11-30',
+    dueDate: '2026-01-05',
+    dueTime: '14:00',
     completed: false,
     assignedUsers: ['Ty', 'Anna K.', 'Piotr M.'],
-    createdAt: '2025-11-25',
+    createdAt: '2026-01-02',
   },
   {
     id: '3',
@@ -61,10 +65,11 @@ const initialTasks: Task[] = [
     description: 'Mleko, chleb, warzywa na obiad',
     category: 'home',
     priority: 'medium',
-    dueDate: '2025-11-29',
+    dueDate: '2026-01-04',
+    dueTime: '18:00',
     completed: false,
     assignedUsers: ['Ty', 'Partner'],
-    createdAt: '2025-11-29',
+    createdAt: '2026-01-03',
   },
   {
     id: '4',
@@ -72,9 +77,10 @@ const initialTasks: Task[] = [
     description: 'Rozdział 5-7 z "Atomic Habits"',
     category: 'private',
     priority: 'low',
-    dueDate: '2025-12-01',
+    dueDate: '2026-01-06',
+    dueTime: '20:00',
     completed: true,
-    createdAt: '2025-11-27',
+    createdAt: '2026-01-02',
   },
   {
     id: '5',
@@ -82,10 +88,11 @@ const initialTasks: Task[] = [
     description: 'Sprawdzić zmiany w module autoryzacji',
     category: 'work',
     priority: 'medium',
-    dueDate: '2025-11-29',
+    dueDate: '2026-01-04',
+    dueTime: '10:30',
     completed: false,
     assignedUsers: ['Ty'],
-    createdAt: '2025-11-29',
+    createdAt: '2026-01-03',
   },
   {
     id: '6',
@@ -93,10 +100,11 @@ const initialTasks: Task[] = [
     description: 'Wymienić uszczelkę, kupić części w sklepie',
     category: 'home',
     priority: 'high',
-    dueDate: '2025-11-30',
+    dueDate: '2026-01-05',
+    dueTime: '16:00',
     completed: false,
     assignedUsers: ['Ty'],
-    createdAt: '2025-11-28',
+    createdAt: '2026-01-03',
   },
   {
     id: '7',
@@ -104,9 +112,10 @@ const initialTasks: Task[] = [
     description: 'Dzień klatki piersiowej i tricepsów',
     category: 'private',
     priority: 'medium',
-    dueDate: '2025-11-29',
+    dueDate: '2026-01-04',
+    dueTime: '17:30',
     completed: false,
-    createdAt: '2025-11-29',
+    createdAt: '2026-01-03',
   },
   {
     id: '8',
@@ -114,10 +123,11 @@ const initialTasks: Task[] = [
     description: 'Omówienie wymagań do nowego projektu',
     category: 'work',
     priority: 'high',
-    dueDate: '2025-12-02',
+    dueDate: '2026-01-07',
+    dueTime: '11:00',
     completed: false,
     assignedUsers: ['Ty', 'Marcin D.'],
-    createdAt: '2025-11-28',
+    createdAt: '2026-01-03',
   },
 ];
 
@@ -304,6 +314,14 @@ export default function App() {
         
         {currentScreen === 'weekly' && (
           <WeeklyWidget 
+            tasks={tasks}
+            hideWorkTasks={shouldHideWorkTasks()}
+            onNavigate={navigateTo}
+          />
+        )}
+        
+        {currentScreen === 'yearly' && (
+          <YearlyView 
             tasks={tasks}
             hideWorkTasks={shouldHideWorkTasks()}
             onNavigate={navigateTo}

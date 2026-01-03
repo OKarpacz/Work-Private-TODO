@@ -1,5 +1,5 @@
 import React from 'react';
-import { ArrowLeft, Edit2, Trash2, CheckCircle2, Circle, User, Calendar, Flag, Tag } from 'lucide-react';
+import { ArrowLeft, Edit2, Trash2, CheckCircle2, Circle, User, Calendar, Clock, Flag, Tag } from 'lucide-react';
 import { Task, TaskCategory } from '../App';
 
 interface TaskDetailsProps {
@@ -136,6 +136,12 @@ export function TaskDetails({ task, onBack, onEdit, onDelete, onToggleComplete }
             </div>
             <div className="bg-gray-50 dark:bg-gray-700 rounded-xl p-4">
               <p className="text-gray-900 dark:text-gray-100">{formatDate(task.dueDate)}</p>
+              {task.dueTime && (
+                <div className="flex items-center gap-2 mt-2 text-gray-600 dark:text-gray-400">
+                  <Clock size={16} />
+                  <span>{task.dueTime}</span>
+                </div>
+              )}
             </div>
           </div>
 

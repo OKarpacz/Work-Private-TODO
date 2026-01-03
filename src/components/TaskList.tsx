@@ -108,7 +108,7 @@ export function TaskList({
           </button>
         </div>
 
-        <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-hide">
+        <div className="flex gap-2 overflow-x-auto pb-2">
           {categories.map(category => {
             const Icon = category.icon;
             const isActive = activeCategory === category.id;
@@ -211,7 +211,7 @@ export function TaskList({
                           }}
                         >
                           <Clock size={14} />
-                          <span>{formatDate(task.dueDate)}</span>
+                          <span>{formatDate(task.dueDate)}{task.dueTime ? ` ${task.dueTime}` : ''}</span>
                           {overdue && <span className="text-red-600">• Zaległe</span>}
                         </div>
 
