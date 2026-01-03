@@ -110,8 +110,7 @@ Built with cutting-edge tools for maximum performance:
 - **React** – Modern, component-based architecture
 - **Vite** – Blazing-fast development and builds
 - **Tailwind CSS** – Beautiful, responsive design
-- **LocalStorage** – Persistent data across sessions
-
+  
 ---
 
 ## 📈 The Science Behind It
