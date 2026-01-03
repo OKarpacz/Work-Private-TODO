@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { ArrowLeft, User, Briefcase, Home, Flag, Calendar, Users, X } from 'lucide-react';
+import { ArrowLeft, User, Briefcase, Home, Flag, Calendar, Clock, Users, X } from 'lucide-react';
 import { Task, TaskCategory, TaskPriority } from '../App';
 
 interface NewTaskProps {
@@ -15,32 +15,26 @@ export function NewTask({ onBack, onSave, editingTask, onUpdate }: NewTaskProps)
   const [category, setCategory] = useState<TaskCategory>(editingTask?.category || 'private');
   const [priority, setPriority] = useState<TaskPriority>(editingTask?.priority || 'medium');
   const [dueDate, setDueDate] = useState(editingTask?.dueDate || new Date().toISOString().split('T')[0]);
+  const [dueTime, setDueTime] = useState(editingTask?.dueTime || '');
   const [assignedUsers, setAssignedUsers] = useState<string[]>(editingTask?.assignedUsers || []);
   const [newUserName, setNewUserName] = useState('');
   const [showUserInput, setShowUserInput] = useState(false);
 
-  const today = new Date().toISOString().split('T')[0];
-
   const categories = [
-    { id: 'private', name: 'Private', icon: User, color: '#3B82F6', bgColor: '#EFF6FF', darkBg: '#1E40AF', darkText: '#BFDBFE' },
-    { id: 'work', name: 'Work', icon: Briefcase, color: '#F59E0B', bgColor: '#FEF3C7', darkBg: '#78350F', darkText: '#FCD34D' },
-    { id: 'home', name: 'Home', icon: Home, color: '#10B981', bgColor: '#D1FAE5', darkBg: '#064E3B', darkText: '#6EE7B7' },
+    { id: 'private', name: 'Private', icon: User, color: '#3B82F6', bgColor: '#EFF6FF' },
+    { id: 'work', name: 'Work', icon: Briefcase, color: '#F59E0B', bgColor: '#FEF3C7' },
+    { id: 'home', name: 'Home', icon: Home, color: '#10B981', bgColor: '#D1FAE5' },
   ];
 
   const priorities = [
-    { id: 'low', name: 'Niski', color: '#10B981', bgColor: '#D1FAE5', darkBg: '#064E3B', darkText: '#6EE7B7' },
-    { id: 'medium', name: 'Średni', color: '#F59E0B', bgColor: '#FEF3C7', darkBg: '#78350F', darkText: '#FCD34D' },
-    { id: 'high', name: 'Wysoki', color: '#EF4444', bgColor: '#FEE2E2', darkBg: '#7F1D1D', darkText: '#FCA5A5' },
+    { id: 'low', name: 'Niski', color: '#10B981', bgColor: '#D1FAE5' },
+    { id: 'medium', name: 'Średni', color: '#F59E0B', bgColor: '#FEF3C7' },
+    { id: 'high', name: 'Wysoki', color: '#EF4444', bgColor: '#FEE2E2' },
   ];
 
   const handleSave = () => {
     if (!title.trim()) {
       alert('Podaj tytuł zadania');
-      return;
-    }
-
-    if (dueDate < today) {
-      alert('Nie możesz ustawić terminu w przeszłości');
       return;
     }
 
@@ -50,6 +44,7 @@ export function NewTask({ onBack, onSave, editingTask, onUpdate }: NewTaskProps)
       category,
       priority,
       dueDate,
+      dueTime: dueTime || undefined,
       completed: editingTask?.completed || false,
       assignedUsers: assignedUsers.length > 0 ? assignedUsers : undefined,
     };
@@ -77,7 +72,7 @@ export function NewTask({ onBack, onSave, editingTask, onUpdate }: NewTaskProps)
   const selectedCategory = categories.find(c => c.id === category)!;
 
   return (
-    <div className="h-full flex flex-col bg-white dark:bg-gray-900">
+    <div className="h-full flex flex-col bg-white dark:bg-gray-800">
       <div 
         className="p-6"
         style={{ backgroundColor: selectedCategory.bgColor }}
@@ -87,7 +82,7 @@ export function NewTask({ onBack, onSave, editingTask, onUpdate }: NewTaskProps)
             onClick={onBack}
             className="w-10 h-10 rounded-full bg-white dark:bg-gray-700 shadow-sm flex items-center justify-center hover:bg-gray-50 dark:hover:bg-gray-600 transition-colors"
           >
-            <ArrowLeft size={20} className="text-gray-700 dark:text-gray-200" />
+            <ArrowLeft size={20} className="text-gray-700 dark:text-gray-300" />
           </button>
           <button
             onClick={handleSave}
@@ -114,7 +109,7 @@ export function NewTask({ onBack, onSave, editingTask, onUpdate }: NewTaskProps)
               value={title}
               onChange={(e) => setTitle(e.target.value)}
               placeholder="np. Dokończyć prezentację"
-              className="w-full px-4 py-3 bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent dark:text-gray-100"
+              className="w-full px-4 py-3 bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 text-gray-900 dark:text-gray-100 placeholder:text-gray-400 dark:placeholder:text-gray-500 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
             />
           </div>
 
@@ -127,7 +122,7 @@ export function NewTask({ onBack, onSave, editingTask, onUpdate }: NewTaskProps)
               onChange={(e) => setDescription(e.target.value)}
               placeholder="Dodaj szczegóły zadania..."
               rows={4}
-              className="w-full px-4 py-3 bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent resize-none dark:text-gray-100"
+              className="w-full px-4 py-3 bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 text-gray-900 dark:text-gray-100 placeholder:text-gray-400 dark:placeholder:text-gray-500 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent resize-none"
             />
           </div>
 
@@ -195,9 +190,22 @@ export function NewTask({ onBack, onSave, editingTask, onUpdate }: NewTaskProps)
             <input
               type="date"
               value={dueDate}
+              min={new Date().toISOString().split('T')[0]}
               onChange={(e) => setDueDate(e.target.value)}
-              min={today}
-              className="w-full px-4 py-3 bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent dark:text-gray-100"
+              className="w-full px-4 py-3 bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 text-gray-900 dark:text-gray-100 placeholder:text-gray-400 dark:placeholder:text-gray-500 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+            />
+          </div>
+
+          <div>
+            <div className="flex items-center gap-2 mb-3 text-gray-700 dark:text-gray-300">
+              <Clock size={20} />
+              <span>Czas</span>
+            </div>
+            <input
+              type="time"
+              value={dueTime}
+              onChange={(e) => setDueTime(e.target.value)}
+              className="w-full px-4 py-3 bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 text-gray-900 dark:text-gray-100 placeholder:text-gray-400 dark:placeholder:text-gray-500 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent [&::-webkit-calendar-picker-indicator]:dark:invert"
             />
           </div>
 
@@ -212,7 +220,7 @@ export function NewTask({ onBack, onSave, editingTask, onUpdate }: NewTaskProps)
                 {assignedUsers.map((user, index) => (
                   <div
                     key={index}
-                    className="flex items-center justify-between bg-gray-50 dark:bg-gray-800 rounded-xl p-3"
+                    className="flex items-center justify-between bg-gray-50 dark:bg-gray-700 rounded-xl p-3"
                   >
                     <div className="flex items-center gap-3">
                       <div 
@@ -225,7 +233,7 @@ export function NewTask({ onBack, onSave, editingTask, onUpdate }: NewTaskProps)
                     </div>
                     <button
                       onClick={() => removeUser(user)}
-                      className="text-gray-400 hover:text-red-600 dark:hover:text-red-400 transition-colors"
+                      className="text-gray-400 hover:text-red-600 transition-colors"
                     >
                       <X size={18} />
                     </button>
@@ -241,12 +249,12 @@ export function NewTask({ onBack, onSave, editingTask, onUpdate }: NewTaskProps)
                     onChange={(e) => setNewUserName(e.target.value)}
                     onKeyPress={(e) => e.key === 'Enter' && addUser()}
                     placeholder="Imię użytkownika"
-                    className="flex-1 px-4 py-3 bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent dark:text-gray-100"
+                    className="flex-1 px-4 py-3 bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 text-gray-900 dark:text-gray-100 placeholder:text-gray-400 dark:placeholder:text-gray-500 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
                     autoFocus
                   />
                   <button
                     onClick={addUser}
-                    className="px-6 py-3 rounded-xl text-white shadow-sm hover:opacity-90 transition-opacity"
+                    className="px-6 py-3 rounded-xl text-white"
                     style={{ backgroundColor: selectedCategory.color }}
                   >
                     Dodaj
@@ -255,7 +263,7 @@ export function NewTask({ onBack, onSave, editingTask, onUpdate }: NewTaskProps)
               ) : (
                 <button
                   onClick={() => setShowUserInput(true)}
-                  className="w-full py-3 border-2 border-dashed rounded-xl text-gray-500 dark:text-gray-400 hover:border-gray-400 dark:hover:border-gray-500 hover:text-gray-600 dark:hover:text-gray-200 transition-colors"
+                  className="w-full py-3 border-2 border-dashed rounded-xl text-gray-500 hover:border-gray-400 hover:text-gray-600 transition-colors"
                   style={{ borderColor: selectedCategory.color + '40' }}
                 >
                   + Dodaj osobę

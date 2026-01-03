@@ -153,11 +153,6 @@ export function WeeklyWidget({ tasks, hideWorkTasks, onNavigate }: WeeklyWidgetP
                         {getDayNumber(day)}
                       </p>
                     </div>
-                    {isToday && (
-                      <div className="px-2 py-1 bg-white bg-opacity-20 rounded-full">
-                        <span className="text-white text-xs">Dzisiaj</span>
-                      </div>
-                    )}
                   </div>
                   <div className={isToday ? 'text-white' : 'text-gray-600 dark:text-gray-400'}>
                     {dayTasks.length} {dayTasks.length === 1 ? 'zadanie' : 'zadań'}
@@ -196,6 +191,11 @@ export function WeeklyWidget({ tasks, hideWorkTasks, onNavigate }: WeeklyWidgetP
                               >
                                 {task.priority === 'high' ? 'Wysoki' : task.priority === 'medium' ? 'Średni' : 'Niski'}
                               </div>
+                              {task.dueTime && (
+                                <span className="text-xs text-gray-500 dark:text-gray-400">
+                                  {task.dueTime}
+                                </span>
+                              )}
                             </div>
                           </div>
                         </button>
