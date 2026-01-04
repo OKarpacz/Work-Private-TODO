@@ -1,5 +1,14 @@
 import React, { useState } from 'react';
-import { LogIn, Mail, Lock, CheckCircle2, Briefcase, Home, User, UserPlus } from 'lucide-react';
+import {
+  LogIn,
+  Mail,
+  Lock,
+  CheckCircle2,
+  Briefcase,
+  Home,
+  User,
+  UserPlus,
+} from 'lucide-react';
 import { projectId, publicAnonKey } from '../utils/supabase/info';
 import { getSupabaseClient } from '../utils/supabase/client';
 
@@ -7,6 +16,24 @@ interface LoginProps {
   onLogin: (accessToken: string, userEmail: string) => void;
   darkMode: boolean;
 }
+
+/* ===== WALIDACJA ===== */
+const isValidEmail = (email: string): boolean =>
+  /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+
+const isValidPassword = (password: string): boolean =>
+  /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*(),.?":{}|<>[\]\\\/~`+=;_-]).{8,}$/.test(
+    password
+  );
+
+/* ===== MAPOWANIE BŁĘDÓW AUTH ===== */
+const mapAuthError = (err: any): string => {
+  if (!err) return 'Wystąpił nieznany błąd.';
+  if (err.status === 400 || err.status === 401) {
+    return 'Nieprawidłowy email lub hasło.';
+  }
+  return 'Wystąpił błąd. Spróbuj ponownie.';
+};
 
 export function Login({ onLogin, darkMode }: LoginProps) {
   const [isSignup, setIsSignup] = useState(false);
@@ -20,35 +47,51 @@ export function Login({ onLogin, darkMode }: LoginProps) {
 
   const handleSignup = async (e: React.FormEvent) => {
     e.preventDefault();
-    setIsLoading(true);
     setError('');
 
+    if (!isValidEmail(email)) {
+      setError('Podaj poprawny adres email.');
+      return;
+    }
+    if (!isValidPassword(password)) {
+      setError(
+        'Hasło musi mieć min. 8 znaków oraz zawierać małą i dużą literę, cyfrę i znak specjalny.'
+      );
+      return;
+    }
+    if (!name.trim()) {
+      setError('Imię jest wymagane.');
+      return;
+    }
+
+    setIsLoading(true);
+
     try {
-      
-      const response = await fetch(`https://${projectId}.supabase.co/functions/v1/make-server-90b519e8/signup`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${publicAnonKey}`
-        },
-        body: JSON.stringify({ email, password, name })
-      });
+      const response = await fetch(
+        `https://${projectId}.supabase.co/functions/v1/make-server-90b519e8/signup`,
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${publicAnonKey}`,
+          },
+          body: JSON.stringify({ email, password, name }),
+        }
+      );
 
       const data = await response.json();
-      
 
       if (!response.ok) {
         throw new Error(data.error || 'Signup failed');
       }
 
-
-      const { data: signInData, error: signInError } = await supabase.auth.signInWithPassword({
-        email,
-        password,
-      });
+      const { data: signInData, error: signInError } =
+        await supabase.auth.signInWithPassword({
+          email,
+          password,
+        });
 
       if (signInError) {
-        console.error('Auto-signin after signup failed:', signInError);
         throw signInError;
       }
 
@@ -56,8 +99,7 @@ export function Login({ onLogin, darkMode }: LoginProps) {
         onLogin(signInData.session.access_token, email);
       }
     } catch (err: any) {
-      console.error('Signup error:', err);
-      setError(err.message || 'Błąd podczas rejestracji');
+      setError(mapAuthError(err));
     } finally {
       setIsLoading(false);
     }
@@ -65,29 +107,35 @@ export function Login({ onLogin, darkMode }: LoginProps) {
 
   const handleSignin = async (e: React.FormEvent) => {
     e.preventDefault();
-    setIsLoading(true);
     setError('');
 
+    if (!isValidEmail(email)) {
+      setError('Podaj poprawny adres email.');
+      return;
+    }
+    if (!password) {
+      setError('Hasło jest wymagane.');
+      return;
+    }
+
+    setIsLoading(true);
+
     try {
-      
-      const { data, error: signInError } = await supabase.auth.signInWithPassword({
-        email,
-        password,
-      });
+      const { data, error: signInError } =
+        await supabase.auth.signInWithPassword({
+          email,
+          password,
+        });
 
       if (signInError) {
-        console.error('Login error details:', {
-          message: signInError.message,
-          status: signInError.status,
-          code: (signInError as any).code
-        });
         throw signInError;
       }
 
-      
+      if (data.session) {
+        onLogin(data.session.access_token, email);
+      }
     } catch (err: any) {
-      console.error('Signin error:', err);
-      setError(err.message || 'Błąd podczas logowania');
+      setError(mapAuthError(err));
     } finally {
       setIsLoading(false);
     }
@@ -109,29 +157,26 @@ export function Login({ onLogin, darkMode }: LoginProps) {
 
   return (
     <div className="h-full flex flex-col bg-white dark:bg-gray-800 overflow-hidden">
-      {/* Header z gradientem */}
       <div className="relative overflow-hidden px-8 pt-16 pb-12">
-        {/* Tło z delikatnymi kółkami w kolorach kategorii */}
         <div className="absolute inset-0 overflow-hidden">
-          <div 
+          <div
             className="absolute w-64 h-64 rounded-full blur-3xl opacity-20"
-            style={{ 
+            style={{
               background: 'linear-gradient(135deg, #3B82F6 0%, #8B5CF6 100%)',
               top: '-80px',
-              right: '-80px'
+              right: '-80px',
             }}
           />
-          <div 
+          <div
             className="absolute w-48 h-48 rounded-full blur-3xl opacity-20"
-            style={{ 
+            style={{
               background: 'linear-gradient(135deg, #F59E0B 0%, #EF4444 100%)',
               bottom: '-40px',
-              left: '-40px'
+              left: '-40px',
             }}
           />
         </div>
 
-        {/* Logo i tytuł */}
         <div className="relative z-10 text-center">
           <div className="flex justify-center gap-3 mb-6">
             {categories.map((cat, index) => {
@@ -147,7 +192,7 @@ export function Login({ onLogin, darkMode }: LoginProps) {
               );
             })}
           </div>
-          
+
           <h1 className="text-gray-900 dark:text-white mb-2">
             Work-Private TODO
           </h1>
@@ -157,10 +202,8 @@ export function Login({ onLogin, darkMode }: LoginProps) {
         </div>
       </div>
 
-      {/* Formularz logowania */}
       <div className="flex-1 px-8 pb-8">
         <form onSubmit={handleSubmit} className="space-y-5">
-          {/* Email */}
           <div>
             <label className="block text-gray-700 dark:text-gray-300 mb-2">
               Email
@@ -174,13 +217,11 @@ export function Login({ onLogin, darkMode }: LoginProps) {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 placeholder="twoj@email.com"
-                required
-                className="w-full pl-12 pr-4 py-4 bg-gray-50 dark:bg-gray-700 border-0 rounded-2xl text-gray-900 dark:text-white placeholder:text-gray-400 dark:placeholder:text-gray-500 focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400 transition-all"
+                className="w-full pl-12 pr-4 py-4 bg-gray-50 dark:bg-gray-700 border-0 rounded-2xl text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500"
               />
             </div>
           </div>
 
-          {/* Hasło */}
           <div>
             <label className="block text-gray-700 dark:text-gray-300 mb-2">
               Hasło
@@ -194,13 +235,11 @@ export function Login({ onLogin, darkMode }: LoginProps) {
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 placeholder="••••••••"
-                required
-                className="w-full pl-12 pr-4 py-4 bg-gray-50 dark:bg-gray-700 border-0 rounded-2xl text-gray-900 dark:text-white placeholder:text-gray-400 dark:placeholder:text-gray-500 focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400 transition-all"
+                className="w-full pl-12 pr-4 py-4 bg-gray-50 dark:bg-gray-700 border-0 rounded-2xl text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500"
               />
             </div>
           </div>
 
-          {/* Imię (tylko w trybie rejestracji) */}
           {isSignup && (
             <div>
               <label className="block text-gray-700 dark:text-gray-300 mb-2">
@@ -211,29 +250,17 @@ export function Login({ onLogin, darkMode }: LoginProps) {
                 value={name}
                 onChange={(e) => setName(e.target.value)}
                 placeholder="Twoje imię"
-                required
-                className="w-full pl-4 pr-4 py-4 bg-gray-50 dark:bg-gray-700 border-0 rounded-2xl text-gray-900 dark:text-white placeholder:text-gray-400 dark:placeholder:text-gray-500 focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400 transition-all"
+                className="w-full px-4 py-4 bg-gray-50 dark:bg-gray-700 border-0 rounded-2xl text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500"
               />
             </div>
           )}
 
-          {/* Link do odzyskiwania hasła */}
-          <div className="text-right">
-            <button
-              type="button"
-              className="text-blue-500 dark:text-blue-400 hover:underline"
-            >
-              Zapomniałeś hasła?
-            </button>
-          </div>
-
-          {/* Przycisk logowania/rejestracji */}
           <button
             type="submit"
             disabled={isLoading}
             className="w-full py-4 rounded-2xl text-white flex items-center justify-center gap-2 transition-all duration-300 hover:opacity-90 disabled:opacity-50 mt-8"
             style={{
-              background: 'linear-gradient(135deg, #3B82F6 0%, #8B5CF6 100%)'
+              background: 'linear-gradient(135deg, #3B82F6 0%, #8B5CF6 100%)',
             }}
           >
             {isLoading ? (
@@ -249,43 +276,52 @@ export function Login({ onLogin, darkMode }: LoginProps) {
             )}
           </button>
 
-          {/* Error message */}
           {error && (
-            <div className="mt-4 p-3 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-xl">
+            <div className="mt-4 p-3 bg-red-50 dark:bg-red-900/20 rounded-xl">
               <p className="text-red-600 dark:text-red-400 text-sm">{error}</p>
             </div>
           )}
         </form>
 
-        {/* Rejestracja/Logowanie toggle */}
         <div className="mt-8 text-center">
-          <p className="text-gray-600 dark:text-gray-400">
-            {isSignup ? 'Masz już konto?' : 'Nie masz konta?'}{' '}
-            <button 
-              className="text-blue-500 dark:text-blue-400 hover:underline" 
-              onClick={() => {
-                setIsSignup(!isSignup);
-                setError('');
-              }}
-            >
-              {isSignup ? 'Zaloguj się' : 'Zarejestruj się'}
-            </button>
-          </p>
+          <button
+            className="text-blue-500 dark:text-blue-400 hover:underline"
+            onClick={() => {
+              setIsSignup(!isSignup);
+              setError('');
+            }}
+          >
+            {isSignup
+              ? 'Masz już konto? Zaloguj się'
+              : 'Nie masz konta? Zarejestruj się'}
+          </button>
         </div>
 
-        {/* Features */}
         <div className="mt-12 space-y-4">
           {[
-            { text: 'Zarządzaj zadaniami prywatnymi, służbowymi i domowymi', color: '#3B82F6' },
-            { text: 'Automatyczne ukrywanie pracy po godzinach', color: '#F59E0B' },
-            { text: 'Współdziel zadania z rodziną i zespołem', color: '#10B981' },
+            {
+              text: 'Zarządzaj zadaniami prywatnymi, służbowymi i domowymi',
+              color: '#3B82F6',
+            },
+            {
+              text: 'Automatyczne ukrywanie pracy po godzinach',
+              color: '#F59E0B',
+            },
+            {
+              text: 'Współdziel zadania z rodziną i zespołem',
+              color: '#10B981',
+            },
           ].map((feature, index) => (
             <div key={index} className="flex items-start gap-3">
-              <div 
-                className="mt-0.5 w-5 h-5 rounded-full flex items-center justify-center flex-shrink-0"
+              <div
+                className="mt-0.5 w-5 h-5 rounded-full flex items-center justify-center"
                 style={{ backgroundColor: `${feature.color}20` }}
               >
-                <CheckCircle2 size={14} style={{ color: feature.color }} strokeWidth={2.5} />
+                <CheckCircle2
+                  size={14}
+                  style={{ color: feature.color }}
+                  strokeWidth={2.5}
+                />
               </div>
               <p className="text-gray-600 dark:text-gray-400">
                 {feature.text}
