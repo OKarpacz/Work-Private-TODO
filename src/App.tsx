@@ -224,11 +224,30 @@ export default function App() {
     setCurrentScreen('tasks');
   };
 
-  const toggleTaskComplete = (taskId: string) => {
+  const getCategoryColor = (taskId: string) => {
+    const task = tasks.find(t => t.id === taskId);
+    if (!task) return '#6B7280'; 
+
+    switch (task.category) {
+      case 'private': return '#3B82F6';
+      case 'work': return '#F59E0B';
+      case 'home': return '#10B981';
+      default: return '#6B7280';
+    }
+  };
+
+const toggleTaskComplete = (taskId: string) => {
+  const taskElement = document.getElementById(`task-${taskId}`);
+  if (taskElement) {
+    taskElement.classList.add('task-hide'); 
+  }
+
+  setTimeout(() => {
     setTasks(tasks.map(t => 
       t.id === taskId ? { ...t, completed: !t.completed } : t
     ));
-  };
+  }, 500); 
+};
 
   const updateSettings = (newSettings: Partial<AppSettings>) => {
     setSettings({ ...settings, ...newSettings });
@@ -250,15 +269,17 @@ export default function App() {
 
   const getFilteredTasks = () => {
     let filtered = tasks;
-    
+  
+    filtered = filtered.filter(t => !t.completed);
+  
     if (shouldHideWorkTasks()) {
       filtered = filtered.filter(t => t.category !== 'work');
     }
-    
+  
     if (activeCategory !== 'all') {
       filtered = filtered.filter(t => t.category === activeCategory);
     }
-    
+  
     return filtered;
   };
 
