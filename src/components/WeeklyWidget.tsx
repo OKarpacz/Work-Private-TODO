@@ -5,22 +5,19 @@ import { Task, TaskCategory } from '../App';
 interface WeeklyWidgetProps {
   tasks: Task[];
   hideWorkTasks: boolean;
-  onNavigate: (screen: any, task?: Task) => void;
+  onNavigate: (screen: any) => void;
 }
 
 export function WeeklyWidget({ tasks, hideWorkTasks, onNavigate }: WeeklyWidgetProps) {
-  
   const getWeekDays = () => {
     const today = new Date();
     const days = [];
     
     const startOfWeek = new Date(today);
     const dayOfWeek = startOfWeek.getDay();
+    const diff = dayOfWeek === 0 ? -6 : 1 - dayOfWeek;
+    startOfWeek.setDate(startOfWeek.getDate() + diff);
     
-    const daysToSubtract = dayOfWeek === 0 ? 6 : dayOfWeek - 1;
-    startOfWeek.setDate(startOfWeek.getDate() - daysToSubtract);
-    
-
     for (let i = 0; i < 7; i++) {
       const date = new Date(startOfWeek);
       date.setDate(startOfWeek.getDate() + i);
@@ -35,18 +32,10 @@ export function WeeklyWidget({ tasks, hideWorkTasks, onNavigate }: WeeklyWidgetP
 
   const getTasksForDate = (date: Date) => {
     const dateStr = date.toISOString().split('T')[0];
-    
-    const filtered = tasks.filter(t => {
-      const matchesDate = t.dueDate === dateStr;
-      const isCompleted = t.completed;
-      const isWorkAndHidden = hideWorkTasks && t.category === 'work';
-      
-      
-      if (isWorkAndHidden) return false;
-      return matchesDate && !isCompleted;
+    return tasks.filter(t => {
+      if (hideWorkTasks && t.category === 'work') return false;
+      return t.dueDate === dateStr && !t.completed;
     });
-    
-    return filtered;
   };
 
   const getCategoryColor = (category: TaskCategory) => {
@@ -179,9 +168,7 @@ export function WeeklyWidget({ tasks, hideWorkTasks, onNavigate }: WeeklyWidgetP
                       return (
                         <button
                           key={task.id}
-                          onClick={() => {
-                            onNavigate('taskDetails', task);
-                          }}
+                          onClick={() => onNavigate('taskDetails', task)}
                           className="w-full flex items-start gap-3 p-3 rounded-xl bg-gray-50 dark:bg-gray-600 hover:bg-gray-100 dark:hover:bg-gray-500 transition-colors text-left"
                         >
                           <div
