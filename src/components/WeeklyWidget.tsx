@@ -5,23 +5,47 @@ import { Task, TaskCategory } from '../App';
 interface WeeklyWidgetProps {
   tasks: Task[];
   hideWorkTasks: boolean;
-  onNavigate: (screen: any) => void;
+  onNavigate: (screen: any, task?: Task) => void;
 }
 
 export function WeeklyWidget({ tasks, hideWorkTasks, onNavigate }: WeeklyWidgetProps) {
+  console.log('=== WEEKLY WIDGET DEBUG ===');
+  console.log('Total tasks received:', tasks.length);
+  console.log('hideWorkTasks:', hideWorkTasks);
+  console.log('All tasks:', tasks.map(t => ({
+    id: t.id,
+    title: t.title,
+    category: t.category,
+    dueDate: t.dueDate,
+    completed: t.completed
+  })));
+  
   const getWeekDays = () => {
     const today = new Date();
     const days = [];
     
+    // Get start of current week (Monday)
     const startOfWeek = new Date(today);
-    const dayOfWeek = startOfWeek.getDay();
-    const diff = dayOfWeek === 0 ? -6 : 1 - dayOfWeek;
-    startOfWeek.setDate(startOfWeek.getDate() + diff);
+    const dayOfWeek = startOfWeek.getDay(); // 0 = Sunday, 1 = Monday, ..., 6 = Saturday
     
+    // Calculate days to subtract to get to Monday
+    // If Sunday (0), go back 6 days. If Monday (1), go back 0 days. If Saturday (6), go back 5 days.
+    const daysToSubtract = dayOfWeek === 0 ? 6 : dayOfWeek - 1;
+    startOfWeek.setDate(startOfWeek.getDate() - daysToSubtract);
+    
+    console.log('📅 Week calculation:', {
+      today: today.toISOString().split('T')[0],
+      dayOfWeek: dayOfWeek,
+      daysToSubtract: daysToSubtract,
+      startOfWeek: startOfWeek.toISOString().split('T')[0]
+    });
+    
+    // Generate 7 days starting from Monday
     for (let i = 0; i < 7; i++) {
       const date = new Date(startOfWeek);
       date.setDate(startOfWeek.getDate() + i);
       days.push(date);
+      console.log(`  Day ${i}: ${date.toISOString().split('T')[0]}`);
     }
     
     return days;
@@ -32,10 +56,21 @@ export function WeeklyWidget({ tasks, hideWorkTasks, onNavigate }: WeeklyWidgetP
 
   const getTasksForDate = (date: Date) => {
     const dateStr = date.toISOString().split('T')[0];
-    return tasks.filter(t => {
-      if (hideWorkTasks && t.category === 'work') return false;
-      return t.dueDate === dateStr && !t.completed;
+    console.log(`--- Checking tasks for ${dateStr} ---`);
+    
+    const filtered = tasks.filter(t => {
+      const matchesDate = t.dueDate === dateStr;
+      const isCompleted = t.completed;
+      const isWorkAndHidden = hideWorkTasks && t.category === 'work';
+      
+      console.log(`Task: "${t.title}" | dueDate: ${t.dueDate} | matches: ${matchesDate} | completed: ${isCompleted} | hidden: ${isWorkAndHidden}`);
+      
+      if (isWorkAndHidden) return false;
+      return matchesDate && !isCompleted;
     });
+    
+    console.log(`Found ${filtered.length} tasks for ${dateStr}`);
+    return filtered;
   };
 
   const getCategoryColor = (category: TaskCategory) => {
@@ -168,7 +203,9 @@ export function WeeklyWidget({ tasks, hideWorkTasks, onNavigate }: WeeklyWidgetP
                       return (
                         <button
                           key={task.id}
-                          onClick={() => onNavigate('taskDetails', task)}
+                          onClick={() => {
+                            onNavigate('taskDetails', task);
+                          }}
                           className="w-full flex items-start gap-3 p-3 rounded-xl bg-gray-50 dark:bg-gray-600 hover:bg-gray-100 dark:hover:bg-gray-500 transition-colors text-left"
                         >
                           <div

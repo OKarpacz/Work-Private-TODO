@@ -24,7 +24,7 @@ export function YearlyView({ tasks, hideWorkTasks, onNavigate }: YearlyViewProps
 
   const getFirstDayOfMonth = (year: number, month: number) => {
     const day = new Date(year, month, 1).getDay();
-    return day === 0 ? 6 : day - 1;
+    return day === 0 ? 6 : day - 1; // Convert to Monday-based week
   };
 
   const getTasksForDate = (year: number, month: number, day: number) => {
@@ -112,10 +112,12 @@ export function YearlyView({ tasks, hideWorkTasks, onNavigate }: YearlyViewProps
             const firstDay = getFirstDayOfMonth(currentYear, monthIndex);
             const days = [];
 
+            // Add empty cells for days before month starts
             for (let i = 0; i < firstDay; i++) {
               days.push(<div key={`empty-${i}`} className="aspect-square" />);
             }
 
+            // Add days of the month
             for (let day = 1; day <= daysInMonth; day++) {
               const dateStr = `${currentYear}-${String(monthIndex + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
               const isToday = dateStr === todayStr;
@@ -171,6 +173,7 @@ export function YearlyView({ tasks, hideWorkTasks, onNavigate }: YearlyViewProps
         </div>
       </div>
 
+      {/* Modal with tasks for selected date */}
       {selectedDate && (
         <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-end md:items-center justify-center z-50">
           <div className="bg-white dark:bg-gray-800 rounded-t-3xl md:rounded-3xl w-full md:max-w-md max-h-[80vh] flex flex-col">

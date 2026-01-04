@@ -10,8 +10,12 @@ interface SettingsProps {
 }
 
 export function Settings({ settings, onUpdateSettings, onNavigate, onLogout }: SettingsProps) {
-  const timeOptions = [
-    '15:00', '15:30', '16:00', '16:30', '17:00', '17:30', '18:00', '18:30', '19:00'
+  const startTimeOptions = [
+    '07:00', '07:30', '08:00', '08:30', '09:00', '09:30', '10:00'
+  ];
+  
+  const endTimeOptions = [
+    '15:00', '15:30', '16:00', '16:30', '17:00', '17:30', '18:00', '18:30', '19:00', '19:30', '20:00'
   ];
 
   return (
@@ -75,7 +79,7 @@ export function Settings({ settings, onUpdateSettings, onNavigate, onLogout }: S
                     Koniec dnia pracy
                   </label>
                   <div className="grid grid-cols-3 gap-2">
-                    {timeOptions.map(time => (
+                    {endTimeOptions.map(time => (
                       <button
                         key={time}
                         onClick={() => onUpdateSettings({ workHoursEnd: time })}

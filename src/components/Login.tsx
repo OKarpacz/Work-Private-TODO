@@ -1,24 +1,136 @@
 import React, { useState } from 'react';
-import { LogIn, Mail, Lock, CheckCircle2, Briefcase, Home, User } from 'lucide-react';
+import { LogIn, Mail, Lock, CheckCircle2, Briefcase, Home, User, UserPlus } from 'lucide-react';
+import { projectId, publicAnonKey } from '../utils/supabase/info';
+import { getSupabaseClient } from '../utils/supabase/client';
 
 interface LoginProps {
-  onLogin: () => void;
+  onLogin: (accessToken: string, userEmail: string) => void;
   darkMode: boolean;
 }
 
 export function Login({ onLogin, darkMode }: LoginProps) {
+  const [isSignup, setIsSignup] = useState(false);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [name, setName] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState('');
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const supabase = getSupabaseClient();
+
+  const handleSignup = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
-    
-    setTimeout(() => {
+    setError('');
+
+    try {
+      console.log('=== ATTEMPTING SIGNUP ===');
+      console.log('Email:', email);
+      console.log('Name:', name);
+      
+      // Call backend signup endpoint
+      const response = await fetch(`https://${projectId}.supabase.co/functions/v1/make-server-90b519e8/signup`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${publicAnonKey}`
+        },
+        body: JSON.stringify({ email, password, name })
+      });
+
+      const data = await response.json();
+      
+      console.log('Signup response:', {
+        ok: response.ok,
+        status: response.status,
+        data
+      });
+
+      if (!response.ok) {
+        throw new Error(data.error || 'Signup failed');
+      }
+
+      console.log('Signup successful, now signing in...');
+
+      // Now sign in the user
+      const { data: signInData, error: signInError } = await supabase.auth.signInWithPassword({
+        email,
+        password,
+      });
+
+      if (signInError) {
+        console.error('Auto-signin after signup failed:', signInError);
+        throw signInError;
+      }
+
+      if (signInData.session) {
+        console.log('✓ Signup and auto-login successful');
+        onLogin(signInData.session.access_token, email);
+      }
+    } catch (err: any) {
+      console.error('Signup error:', err);
+      setError(err.message || 'Błąd podczas rejestracji');
+    } finally {
       setIsLoading(false);
-      onLogin();
-    }, 1000);
+    }
+  };
+
+  const handleSignin = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsLoading(true);
+    setError('');
+
+    try {
+      console.log('=== ATTEMPTING LOGIN ===');
+      console.log('Email:', email);
+      console.log('Supabase URL:', `https://${projectId}.supabase.co`);
+      
+      const { data, error: signInError } = await supabase.auth.signInWithPassword({
+        email,
+        password,
+      });
+
+      console.log('Login response:', { 
+        hasSession: !!data.session, 
+        hasUser: !!data.user,
+        error: signInError?.message 
+      });
+
+      if (signInError) {
+        console.error('Login error details:', {
+          message: signInError.message,
+          status: signInError.status,
+          code: (signInError as any).code
+        });
+        throw signInError;
+      }
+
+      if (data.session) {
+        console.log('=== LOGIN SUCCESS ===');
+        console.log('Access token (first 50 chars):', data.session.access_token.substring(0, 50) + '...');
+        console.log('Access token (last 20 chars):', '...' + data.session.access_token.slice(-20));
+        console.log('Token type:', data.session.token_type);
+        console.log('User ID:', data.session.user.id);
+        console.log('User email:', email);
+        console.log('Expires at:', data.session.expires_at);
+        onLogin(data.session.access_token, email);
+      } else {
+        throw new Error('No session returned from login');
+      }
+    } catch (err: any) {
+      console.error('Signin error:', err);
+      setError(err.message || 'Błąd podczas logowania');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleSubmit = (e: React.FormEvent) => {
+    if (isSignup) {
+      handleSignup(e);
+    } else {
+      handleSignin(e);
+    }
   };
 
   const categories = [
@@ -29,7 +141,9 @@ export function Login({ onLogin, darkMode }: LoginProps) {
 
   return (
     <div className="h-full flex flex-col bg-white dark:bg-gray-800 overflow-hidden">
+      {/* Header z gradientem */}
       <div className="relative overflow-hidden px-8 pt-16 pb-12">
+        {/* Tło z delikatnymi kółkami w kolorach kategorii */}
         <div className="absolute inset-0 overflow-hidden">
           <div 
             className="absolute w-64 h-64 rounded-full blur-3xl opacity-20"
@@ -49,6 +163,7 @@ export function Login({ onLogin, darkMode }: LoginProps) {
           />
         </div>
 
+        {/* Logo i tytuł */}
         <div className="relative z-10 text-center">
           <div className="flex justify-center gap-3 mb-6">
             {categories.map((cat, index) => {
@@ -74,8 +189,10 @@ export function Login({ onLogin, darkMode }: LoginProps) {
         </div>
       </div>
 
+      {/* Formularz logowania */}
       <div className="flex-1 px-8 pb-8">
         <form onSubmit={handleSubmit} className="space-y-5">
+          {/* Email */}
           <div>
             <label className="block text-gray-700 dark:text-gray-300 mb-2">
               Email
@@ -95,6 +212,7 @@ export function Login({ onLogin, darkMode }: LoginProps) {
             </div>
           </div>
 
+          {/* Hasło */}
           <div>
             <label className="block text-gray-700 dark:text-gray-300 mb-2">
               Hasło
@@ -114,6 +232,24 @@ export function Login({ onLogin, darkMode }: LoginProps) {
             </div>
           </div>
 
+          {/* Imię (tylko w trybie rejestracji) */}
+          {isSignup && (
+            <div>
+              <label className="block text-gray-700 dark:text-gray-300 mb-2">
+                Imię
+              </label>
+              <input
+                type="text"
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                placeholder="Twoje imię"
+                required
+                className="w-full pl-4 pr-4 py-4 bg-gray-50 dark:bg-gray-700 border-0 rounded-2xl text-gray-900 dark:text-white placeholder:text-gray-400 dark:placeholder:text-gray-500 focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400 transition-all"
+              />
+            </div>
+          )}
+
+          {/* Link do odzyskiwania hasła */}
           <div className="text-right">
             <button
               type="button"
@@ -123,6 +259,7 @@ export function Login({ onLogin, darkMode }: LoginProps) {
             </button>
           </div>
 
+          {/* Przycisk logowania/rejestracji */}
           <button
             type="submit"
             disabled={isLoading}
@@ -134,26 +271,41 @@ export function Login({ onLogin, darkMode }: LoginProps) {
             {isLoading ? (
               <>
                 <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                <span>Logowanie...</span>
+                <span>{isSignup ? 'Rejestracja...' : 'Logowanie...'}</span>
               </>
             ) : (
               <>
-                <LogIn size={20} />
-                <span>Zaloguj się</span>
+                {isSignup ? <UserPlus size={20} /> : <LogIn size={20} />}
+                <span>{isSignup ? 'Zarejestruj się' : 'Zaloguj się'}</span>
               </>
             )}
           </button>
+
+          {/* Error message */}
+          {error && (
+            <div className="mt-4 p-3 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-xl">
+              <p className="text-red-600 dark:text-red-400 text-sm">{error}</p>
+            </div>
+          )}
         </form>
 
+        {/* Rejestracja/Logowanie toggle */}
         <div className="mt-8 text-center">
           <p className="text-gray-600 dark:text-gray-400">
-            Nie masz konta?{' '}
-            <button className="text-blue-500 dark:text-blue-400 hover:underline">
-              Zarejestruj się
+            {isSignup ? 'Masz już konto?' : 'Nie masz konta?'}{' '}
+            <button 
+              className="text-blue-500 dark:text-blue-400 hover:underline" 
+              onClick={() => {
+                setIsSignup(!isSignup);
+                setError('');
+              }}
+            >
+              {isSignup ? 'Zaloguj się' : 'Zarejestruj się'}
             </button>
           </p>
         </div>
 
+        {/* Features */}
         <div className="mt-12 space-y-4">
           {[
             { text: 'Zarządzaj zadaniami prywatnymi, służbowymi i domowymi', color: '#3B82F6' },
