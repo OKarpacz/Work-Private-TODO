@@ -24,11 +24,7 @@ export function Login({ onLogin, darkMode }: LoginProps) {
     setError('');
 
     try {
-      console.log('=== ATTEMPTING SIGNUP ===');
-      console.log('Email:', email);
-      console.log('Name:', name);
       
-      // Call backend signup endpoint
       const response = await fetch(`https://${projectId}.supabase.co/functions/v1/make-server-90b519e8/signup`, {
         method: 'POST',
         headers: {
@@ -40,19 +36,12 @@ export function Login({ onLogin, darkMode }: LoginProps) {
 
       const data = await response.json();
       
-      console.log('Signup response:', {
-        ok: response.ok,
-        status: response.status,
-        data
-      });
 
       if (!response.ok) {
         throw new Error(data.error || 'Signup failed');
       }
 
-      console.log('Signup successful, now signing in...');
 
-      // Now sign in the user
       const { data: signInData, error: signInError } = await supabase.auth.signInWithPassword({
         email,
         password,
@@ -64,7 +53,6 @@ export function Login({ onLogin, darkMode }: LoginProps) {
       }
 
       if (signInData.session) {
-        console.log('✓ Signup and auto-login successful');
         onLogin(signInData.session.access_token, email);
       }
     } catch (err: any) {
@@ -81,19 +69,10 @@ export function Login({ onLogin, darkMode }: LoginProps) {
     setError('');
 
     try {
-      console.log('=== ATTEMPTING LOGIN ===');
-      console.log('Email:', email);
-      console.log('Supabase URL:', `https://${projectId}.supabase.co`);
       
       const { data, error: signInError } = await supabase.auth.signInWithPassword({
         email,
         password,
-      });
-
-      console.log('Login response:', { 
-        hasSession: !!data.session, 
-        hasUser: !!data.user,
-        error: signInError?.message 
       });
 
       if (signInError) {
@@ -105,18 +84,7 @@ export function Login({ onLogin, darkMode }: LoginProps) {
         throw signInError;
       }
 
-      if (data.session) {
-        console.log('=== LOGIN SUCCESS ===');
-        console.log('Access token (first 50 chars):', data.session.access_token.substring(0, 50) + '...');
-        console.log('Access token (last 20 chars):', '...' + data.session.access_token.slice(-20));
-        console.log('Token type:', data.session.token_type);
-        console.log('User ID:', data.session.user.id);
-        console.log('User email:', email);
-        console.log('Expires at:', data.session.expires_at);
-        onLogin(data.session.access_token, email);
-      } else {
-        throw new Error('No session returned from login');
-      }
+      
     } catch (err: any) {
       console.error('Signin error:', err);
       setError(err.message || 'Błąd podczas logowania');

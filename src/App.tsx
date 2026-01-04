@@ -63,7 +63,6 @@ export default function App() {
 
   const supabase = getSupabaseClient();
 
-  // Fetch tasks from backend
   const fetchTasks = async (token: string) => {
     setIsLoadingTasks(true);
     try {
@@ -94,7 +93,6 @@ export default function App() {
     }
   };
 
-  // Check for existing session
   useEffect(() => {
     const checkSession = async () => {
       const { data } = await getSupabaseClient().auth.getSession();
@@ -121,7 +119,6 @@ export default function App() {
 
     checkSession();
 
-    // Load settings from localStorage
     const savedDarkMode = localStorage.getItem('darkMode');
     const savedBlockWorkTasks = localStorage.getItem('blockWorkTasksAfterHours');
     const savedWorkHoursStart = localStorage.getItem('workHoursStart');
@@ -289,10 +286,6 @@ export default function App() {
   };
 
   const shouldHideWorkTasks = () => {
-    if (!settings.blockWorkTasksAfterHours) {
-      console.log('🔓 Work tasks blocking DISABLED');
-      return false;
-    }
     
     const now = new Date();
     const currentHour = now.getHours();

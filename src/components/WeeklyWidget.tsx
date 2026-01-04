@@ -9,43 +9,22 @@ interface WeeklyWidgetProps {
 }
 
 export function WeeklyWidget({ tasks, hideWorkTasks, onNavigate }: WeeklyWidgetProps) {
-  console.log('=== WEEKLY WIDGET DEBUG ===');
-  console.log('Total tasks received:', tasks.length);
-  console.log('hideWorkTasks:', hideWorkTasks);
-  console.log('All tasks:', tasks.map(t => ({
-    id: t.id,
-    title: t.title,
-    category: t.category,
-    dueDate: t.dueDate,
-    completed: t.completed
-  })));
   
   const getWeekDays = () => {
     const today = new Date();
     const days = [];
     
-    // Get start of current week (Monday)
     const startOfWeek = new Date(today);
-    const dayOfWeek = startOfWeek.getDay(); // 0 = Sunday, 1 = Monday, ..., 6 = Saturday
+    const dayOfWeek = startOfWeek.getDay();
     
-    // Calculate days to subtract to get to Monday
-    // If Sunday (0), go back 6 days. If Monday (1), go back 0 days. If Saturday (6), go back 5 days.
     const daysToSubtract = dayOfWeek === 0 ? 6 : dayOfWeek - 1;
     startOfWeek.setDate(startOfWeek.getDate() - daysToSubtract);
     
-    console.log('📅 Week calculation:', {
-      today: today.toISOString().split('T')[0],
-      dayOfWeek: dayOfWeek,
-      daysToSubtract: daysToSubtract,
-      startOfWeek: startOfWeek.toISOString().split('T')[0]
-    });
-    
-    // Generate 7 days starting from Monday
+
     for (let i = 0; i < 7; i++) {
       const date = new Date(startOfWeek);
       date.setDate(startOfWeek.getDate() + i);
       days.push(date);
-      console.log(`  Day ${i}: ${date.toISOString().split('T')[0]}`);
     }
     
     return days;
@@ -56,20 +35,17 @@ export function WeeklyWidget({ tasks, hideWorkTasks, onNavigate }: WeeklyWidgetP
 
   const getTasksForDate = (date: Date) => {
     const dateStr = date.toISOString().split('T')[0];
-    console.log(`--- Checking tasks for ${dateStr} ---`);
     
     const filtered = tasks.filter(t => {
       const matchesDate = t.dueDate === dateStr;
       const isCompleted = t.completed;
       const isWorkAndHidden = hideWorkTasks && t.category === 'work';
       
-      console.log(`Task: "${t.title}" | dueDate: ${t.dueDate} | matches: ${matchesDate} | completed: ${isCompleted} | hidden: ${isWorkAndHidden}`);
       
       if (isWorkAndHidden) return false;
       return matchesDate && !isCompleted;
     });
     
-    console.log(`Found ${filtered.length} tasks for ${dateStr}`);
     return filtered;
   };
 
