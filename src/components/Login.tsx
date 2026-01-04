@@ -1,8 +1,10 @@
 import React, { useState } from 'react';
-import {LogIn, Mail, Lock, CheckCircle2, Briefcase, Home, User, } from 'lucide-react';
+import { LogIn, Mail, Lock, CheckCircle2, Briefcase, Home, User, UserPlus } from 'lucide-react';
+import { projectId, publicAnonKey } from '../utils/supabase/info';
+import { getSupabaseClient } from '../utils/supabase/client';
 
 interface LoginProps {
-  onLogin: () => void;
+  onLogin: (accessToken: string, userEmail: string) => void;
   darkMode: boolean;
 }
 
@@ -34,53 +36,100 @@ const isValidPassword = (password: string): boolean => {
 
 
 export function Login({ onLogin, darkMode }: LoginProps) {
+  const [isSignup, setIsSignup] = useState(false);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [name, setName] = useState('');
   const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const [error, setError] = useState('');
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const supabase = getSupabaseClient();
+
+  const handleSignup = async (e: React.FormEvent) => {
     e.preventDefault();
-    setError(null);
-
- 
-    if (!isValidEmail(email)) {
-      setError('Podaj poprawny adres email.');
-      return;
-    }
-
-    if (!isValidPassword(password)) {
-      setError(
-        'Hasło musi mieć min. 8 znaków oraz zawierać małą i dużą literę, cyfrę i znak specjalny.'
-      );
-      return;
-    }
+    setIsLoading(true);
+    setError('');
 
     try {
-      setIsLoading(true);
-
       
-      await new Promise<void>((resolve, reject) =>
-        setTimeout(() => {
-          if (email === email && password === password) {
-            resolve();
-          } else {
-            reject(new Error('Nieprawidłowy email lub hasło.'));
-          }
-        }, 1000)
-      );
+      const response = await fetch(`https://${projectId}.supabase.co/functions/v1/make-server-90b519e8/signup`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${publicAnonKey}`
+        },
+        body: JSON.stringify({ email, password, name })
+      });
 
-      onLogin();
-    } catch (err) {
-      setError((err as Error).message);
+      const data = await response.json();
+      
+
+      if (!response.ok) {
+        throw new Error(data.error || 'Signup failed');
+      }
+
+
+      const { data: signInData, error: signInError } = await supabase.auth.signInWithPassword({
+        email,
+        password,
+      });
+
+      if (signInError) {
+        console.error('Auto-signin after signup failed:', signInError);
+        throw signInError;
+      }
+
+      if (signInData.session) {
+        onLogin(signInData.session.access_token, email);
+      }
+    } catch (err: any) {
+      console.error('Signup error:', err);
+      setError(err.message || 'Błąd podczas rejestracji');
     } finally {
       setIsLoading(false);
     }
   };
 
+  const handleSignin = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsLoading(true);
+    setError('');
+
+    try {
+      
+      const { data, error: signInError } = await supabase.auth.signInWithPassword({
+        email,
+        password,
+      });
+
+      if (signInError) {
+        console.error('Login error details:', {
+          message: signInError.message,
+          status: signInError.status,
+          code: (signInError as any).code
+        });
+        throw signInError;
+      }
+
+      
+    } catch (err: any) {
+      console.error('Signin error:', err);
+      setError(err.message || 'Błąd podczas logowania');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleSubmit = (e: React.FormEvent) => {
+    if (isSignup) {
+      handleSignup(e);
+    } else {
+      handleSignin(e);
+    }
+  };
+
   return (
     <div className="h-full flex flex-col bg-white dark:bg-gray-800 overflow-hidden">
-     
       <div className="relative overflow-hidden px-8 pt-16 pb-12">
         <div className="absolute inset-0 overflow-hidden">
           <div
@@ -124,9 +173,7 @@ export function Login({ onLogin, darkMode }: LoginProps) {
             Zorganizuj swoje życie w jednym miejscu
           </p>
         </div>
-      </div>
-
-     
+      </div>     
       <div className="flex-1 px-8 pb-8">
         <form onSubmit={handleSubmit} className="space-y-5">
           {error && (
@@ -174,6 +221,22 @@ export function Login({ onLogin, darkMode }: LoginProps) {
             </div>
           </div>
 
+          {isSignup && (
+            <div>
+              <label className="block text-gray-700 dark:text-gray-300 mb-2">
+                Imię
+              </label>
+              <input
+                type="text"
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                placeholder="Twoje imię"
+                required
+                className="w-full pl-4 pr-4 py-4 bg-gray-50 dark:bg-gray-700 border-0 rounded-2xl text-gray-900 dark:text-white placeholder:text-gray-400 dark:placeholder:text-gray-500 focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400 transition-all"
+              />
+            </div>
+          )}
+
           <div className="text-right">
             <button
               type="button"
@@ -195,18 +258,38 @@ export function Login({ onLogin, darkMode }: LoginProps) {
             {isLoading ? (
               <>
                 <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                <span>Logowanie...</span>
+                <span>{isSignup ? 'Rejestracja...' : 'Logowanie...'}</span>
               </>
             ) : (
               <>
-                <LogIn size={20} />
-                <span>Zaloguj się</span>
+                {isSignup ? <UserPlus size={20} /> : <LogIn size={20} />}
+                <span>{isSignup ? 'Zarejestruj się' : 'Zaloguj się'}</span>
               </>
             )}
           </button>
+
+          {error && (
+            <div className="mt-4 p-3 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-xl">
+              <p className="text-red-600 dark:text-red-400 text-sm">{error}</p>
+            </div>
+          )}
         </form>
 
-        
+        <div className="mt-8 text-center">
+          <p className="text-gray-600 dark:text-gray-400">
+            {isSignup ? 'Masz już konto?' : 'Nie masz konta?'}{' '}
+            <button 
+              className="text-blue-500 dark:text-blue-400 hover:underline" 
+              onClick={() => {
+                setIsSignup(!isSignup);
+                setError('');
+              }}
+            >
+              {isSignup ? 'Zaloguj się' : 'Zarejestruj się'}
+            </button>
+          </p>
+        </div>
+
         <div className="mt-12 space-y-4">
           {[
             { text: 'Zarządzaj zadaniami prywatnymi, służbowymi i domowymi', color: '#3B82F6' },

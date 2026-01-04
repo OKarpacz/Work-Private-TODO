@@ -171,6 +171,7 @@ export function YearlyView({ tasks, hideWorkTasks, onNavigate }: YearlyViewProps
         </div>
       </div>
 
+      {/* Modal with tasks for selected date */}
       {selectedDate && (
         <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-end md:items-center justify-center z-50">
           <div className="bg-white dark:bg-gray-800 rounded-t-3xl md:rounded-3xl w-full md:max-w-md max-h-[80vh] flex flex-col">

@@ -1,4 +1,6 @@
 import React, { useState, useEffect } from 'react';
+import { projectId } from './utils/supabase/info';
+import { getSupabaseClient } from './utils/supabase/client';
 import { Login } from './components/Login';
 import { Onboarding } from './components/Onboarding';
 import { Dashboard } from './components/Dashboard';
@@ -24,10 +26,13 @@ export interface Task {
   completed: boolean;
   assignedUsers?: string[];
   createdAt: string;
+  userId?: string;
+  sharedWith?: string[];
 }
 
 export interface AppSettings {
   blockWorkTasksAfterHours: boolean;
+  workHoursStart: string;
   workHoursEnd: string;
   notifications: boolean;
   darkMode: boolean;
@@ -35,104 +40,9 @@ export interface AppSettings {
 
 type Screen = 'login' | 'onboarding' | 'dashboard' | 'tasks' | 'taskDetails' | 'newTask' | 'weekly' | 'yearly' | 'settings';
 
-const initialTasks: Task[] = [
-  {
-    id: '1',
-    title: 'Medytacja poranna',
-    description: '15 minut medytacji i ćwiczeń oddechowych',
-    category: 'private',
-    priority: 'high',
-    dueDate: '2026-01-04',
-    dueTime: '07:00',
-    completed: false,
-    createdAt: '2026-01-03',
-  },
-  {
-    id: '2',
-    title: 'Prezentacja Q4',
-    description: 'Przygotować slajdy na spotkanie zarządu',
-    category: 'work',
-    priority: 'high',
-    dueDate: '2026-01-05',
-    dueTime: '14:00',
-    completed: false,
-    assignedUsers: ['Ty', 'Anna K.', 'Piotr M.'],
-    createdAt: '2026-01-02',
-  },
-  {
-    id: '3',
-    title: 'Zakupy spożywcze',
-    description: 'Mleko, chleb, warzywa na obiad',
-    category: 'home',
-    priority: 'medium',
-    dueDate: '2026-01-04',
-    dueTime: '18:00',
-    completed: false,
-    assignedUsers: ['Ty', 'Partner'],
-    createdAt: '2026-01-03',
-  },
-  {
-    id: '4',
-    title: 'Przeczytać książkę',
-    description: 'Rozdział 5-7 z "Atomic Habits"',
-    category: 'private',
-    priority: 'low',
-    dueDate: '2026-01-06',
-    dueTime: '20:00',
-    completed: true,
-    createdAt: '2026-01-02',
-  },
-  {
-    id: '5',
-    title: 'Code review - PR #234',
-    description: 'Sprawdzić zmiany w module autoryzacji',
-    category: 'work',
-    priority: 'medium',
-    dueDate: '2026-01-04',
-    dueTime: '10:30',
-    completed: false,
-    assignedUsers: ['Ty'],
-    createdAt: '2026-01-03',
-  },
-  {
-    id: '6',
-    title: 'Naprawić kran w łazience',
-    description: 'Wymienić uszczelkę, kupić części w sklepie',
-    category: 'home',
-    priority: 'high',
-    dueDate: '2026-01-05',
-    dueTime: '16:00',
-    completed: false,
-    assignedUsers: ['Ty'],
-    createdAt: '2026-01-03',
-  },
-  {
-    id: '7',
-    title: 'Trening na siłowni',
-    description: 'Dzień klatki piersiowej i tricepsów',
-    category: 'private',
-    priority: 'medium',
-    dueDate: '2026-01-04',
-    dueTime: '17:30',
-    completed: false,
-    createdAt: '2026-01-03',
-  },
-  {
-    id: '8',
-    title: 'Spotkanie z klientem',
-    description: 'Omówienie wymagań do nowego projektu',
-    category: 'work',
-    priority: 'high',
-    dueDate: '2026-01-07',
-    dueTime: '11:00',
-    completed: false,
-    assignedUsers: ['Ty', 'Marcin D.'],
-    createdAt: '2026-01-03',
-  },
-];
-
 const initialSettings: AppSettings = {
   blockWorkTasksAfterHours: true,
+  workHoursStart: '08:00',
   workHoursEnd: '16:00',
   notifications: true,
   darkMode: false,
@@ -140,54 +50,128 @@ const initialSettings: AppSettings = {
 
 export default function App() {
   const [currentScreen, setCurrentScreen] = useState<Screen>('login');
-  const [tasks, setTasks] = useState<Task[]>(initialTasks);
+  const [tasks, setTasks] = useState<Task[]>([]);
   const [selectedTask, setSelectedTask] = useState<Task | null>(null);
   const [editingTask, setEditingTask] = useState<Task | null>(null);
   const [settings, setSettings] = useState<AppSettings>(initialSettings);
   const [activeCategory, setActiveCategory] = useState<TaskCategory | 'all'>('all');
   const [hasCompletedOnboarding, setHasCompletedOnboarding] = useState(false);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [accessToken, setAccessToken] = useState<string>('');
+  const [userEmail, setUserEmail] = useState<string>('');
+  const [isLoadingTasks, setIsLoadingTasks] = useState(false);
+
+  const supabase = getSupabaseClient();
+
+  const fetchTasks = async (token: string) => {
+    setIsLoadingTasks(true);
+    try {
+      const response = await fetch(
+        `https://${projectId}.supabase.co/functions/v1/make-server-90b519e8/tasks`,
+        {
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json',
+          },
+        }
+      );
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        console.error('❌ Failed to fetch tasks');
+        console.error('Status:', response.status);
+        console.error('Response data:', data);
+        throw new Error(data.error || data.message || 'Failed to fetch tasks');
+      }
+
+      setTasks(data.tasks || []);
+    } catch (error) {
+      console.error('❌ Error fetching tasks:', error);
+    } finally {
+      setIsLoadingTasks(false);
+    }
+  };
 
   useEffect(() => {
-    const loggedIn = localStorage.getItem('isLoggedIn');
-    const onboardingCompleted = localStorage.getItem('onboardingCompleted');
-    const savedDarkMode = localStorage.getItem('darkMode');
-    
-    if (loggedIn === 'true') {
-      setIsLoggedIn(true);
-      if (onboardingCompleted === 'true') {
-        setHasCompletedOnboarding(true);
-        setCurrentScreen('dashboard');
-      } else {
-        setCurrentScreen('onboarding');
+    const checkSession = async () => {
+      const { data } = await getSupabaseClient().auth.getSession();
+      
+      if (data.session) {
+        const token = data.session.access_token;
+        const email = data.session.user.email || '';
+        
+        
+        setAccessToken(token);
+        setUserEmail(email);
+        setIsLoggedIn(true);
+        
+        const onboardingCompleted = localStorage.getItem('onboardingCompleted');
+        if (onboardingCompleted === 'true') {
+          setHasCompletedOnboarding(true);
+          setCurrentScreen('dashboard');
+          await fetchTasks(token);
+        } else {
+          setCurrentScreen('onboarding');
+        }
       }
-    }
+    };
+
+    checkSession();
+
+    const savedDarkMode = localStorage.getItem('darkMode');
+    const savedBlockWorkTasks = localStorage.getItem('blockWorkTasksAfterHours');
+    const savedWorkHoursStart = localStorage.getItem('workHoursStart');
+    const savedWorkHoursEnd = localStorage.getItem('workHoursEnd');
+    const savedNotifications = localStorage.getItem('notifications');
     
     if (savedDarkMode === 'true') {
       setSettings(prev => ({ ...prev, darkMode: true }));
+    }
+    if (savedBlockWorkTasks !== null) {
+      setSettings(prev => ({ ...prev, blockWorkTasksAfterHours: savedBlockWorkTasks === 'true' }));
+    }
+    if (savedWorkHoursStart) {
+      setSettings(prev => ({ ...prev, workHoursStart: savedWorkHoursStart }));
+    }
+    if (savedWorkHoursEnd) {
+      setSettings(prev => ({ ...prev, workHoursEnd: savedWorkHoursEnd }));
+    }
+    if (savedNotifications !== null) {
+      setSettings(prev => ({ ...prev, notifications: savedNotifications === 'true' }));
     }
   }, []);
 
   useEffect(() => {
     localStorage.setItem('darkMode', settings.darkMode.toString());
-  }, [settings.darkMode]);
+    localStorage.setItem('blockWorkTasksAfterHours', settings.blockWorkTasksAfterHours.toString());
+    localStorage.setItem('workHoursStart', settings.workHoursStart);
+    localStorage.setItem('workHoursEnd', settings.workHoursEnd);
+    localStorage.setItem('notifications', settings.notifications.toString());
+  }, [settings]);
 
-  const handleLogin = () => {
-    localStorage.setItem('isLoggedIn', 'true');
+  const handleLogin = async (token: string, email: string) => {
+    setAccessToken(token);
+    setUserEmail(email);
     setIsLoggedIn(true);
     setCurrentScreen('onboarding');
   };
 
-  const handleLogout = () => {
-    localStorage.removeItem('isLoggedIn');
+  const handleLogout = async () => {
+    await supabase.auth.signOut();
+    localStorage.removeItem('onboardingCompleted');
+    setAccessToken('');
+    setUserEmail('');
     setIsLoggedIn(false);
+    setTasks([]);
     setCurrentScreen('login');
   };
 
-  const completeOnboarding = () => {
+  const completeOnboarding = async () => {
     localStorage.setItem('onboardingCompleted', 'true');
     setHasCompletedOnboarding(true);
     setCurrentScreen('dashboard');
+    await fetchTasks(accessToken);
   };
 
   const navigateTo = (screen: Screen, task?: Task) => {
@@ -202,32 +186,99 @@ export default function App() {
     setCurrentScreen(screen);
   };
 
-  const addTask = (task: Omit<Task, 'id' | 'createdAt'>) => {
-    const newTask: Task = {
-      ...task,
-      id: Date.now().toString(),
-      createdAt: new Date().toISOString().split('T')[0],
-    };
-    setTasks([...tasks, newTask]);
-    setCurrentScreen('tasks');
-  };
+  const addTask = async (task: Omit<Task, 'id' | 'createdAt'>) => {
+    try {
+      const response = await fetch(
+        `https://${projectId}.supabase.co/functions/v1/make-server-90b519e8/tasks`,
+        {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${accessToken}`,
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(task),
+        }
+      );
 
-  const updateTask = (taskId: string, updates: Partial<Task>) => {
-    setTasks(tasks.map(t => t.id === taskId ? { ...t, ...updates } : t));
-    if (selectedTask?.id === taskId) {
-      setSelectedTask({ ...selectedTask, ...updates });
+      const data = await response.json();
+
+      if (!response.ok) {
+        console.error('Failed to create task:', response.status, data);
+        throw new Error(data.error || 'Failed to create task');
+      }
+
+      setTasks([...tasks, data.task]);
+      setCurrentScreen('tasks');
+    } catch (error: any) {
+      console.error('Error creating task:', error);
+      alert(`Nie udało się utworzyć zadania: ${error.message}`);
     }
   };
 
-  const deleteTask = (taskId: string) => {
-    setTasks(tasks.filter(t => t.id !== taskId));
-    setCurrentScreen('tasks');
+  const updateTask = async (taskId: string, updates: Partial<Task>) => {
+    try {
+      const response = await fetch(
+        `https://${projectId}.supabase.co/functions/v1/make-server-90b519e8/tasks/${taskId}`,
+        {
+          method: 'PUT',
+          headers: {
+            'Authorization': `Bearer ${accessToken}`,
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(updates),
+        }
+      );
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        console.error('Failed to update task:', response.status, data);
+        throw new Error(data.error || 'Failed to update task');
+      }
+
+      setTasks(tasks.map(t => t.id === taskId ? data.task : t));
+      if (selectedTask?.id === taskId) {
+        setSelectedTask(data.task);
+      }
+    } catch (error: any) {
+      console.error('Error updating task:', error);
+      alert(`Nie udało się zaktualizować zadania: ${error.message}`);
+    }
   };
 
-  const toggleTaskComplete = (taskId: string) => {
-    setTasks(tasks.map(t => 
-      t.id === taskId ? { ...t, completed: !t.completed } : t
-    ));
+  const deleteTask = async (taskId: string) => {
+    try {
+      const response = await fetch(
+        `https://${projectId}.supabase.co/functions/v1/make-server-90b519e8/tasks/${taskId}`,
+        {
+          method: 'DELETE',
+          headers: {
+            'Authorization': `Bearer ${accessToken}`,
+            'Content-Type': 'application/json',
+          },
+        }
+      );
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        console.error('Failed to delete task:', response.status, data);
+        throw new Error(data.error || 'Failed to delete task');
+      }
+
+      setTasks(tasks.filter(t => t.id !== taskId));
+      setCurrentScreen('tasks');
+    } catch (error: any) {
+      console.error('Error deleting task:', error);
+      alert(`Nie udało się usunąć zadania: ${error.message}`);
+    }
+  };
+
+  const toggleTaskComplete = async (taskId: string) => {
+    const task = tasks.find(t => t.id === taskId);
+    if (!task) return;
+
+    await updateTask(taskId, { completed: !task.completed });
   };
 
   const updateSettings = (newSettings: Partial<AppSettings>) => {
@@ -235,17 +286,22 @@ export default function App() {
   };
 
   const shouldHideWorkTasks = () => {
-    if (!settings.blockWorkTasksAfterHours) return false;
     
     const now = new Date();
     const currentHour = now.getHours();
     const currentMinute = now.getMinutes();
+    
+    const [startHour, startMinute] = settings.workHoursStart.split(':').map(Number);
     const [endHour, endMinute] = settings.workHoursEnd.split(':').map(Number);
     
     const currentTime = currentHour * 60 + currentMinute;
+    const startTime = startHour * 60 + startMinute;
     const endTime = endHour * 60 + endMinute;
     
-    return currentTime >= endTime;
+    const shouldHide = currentTime < startTime || currentTime >= endTime;
+    
+    
+    return shouldHide;
   };
 
   const getFilteredTasks = () => {
