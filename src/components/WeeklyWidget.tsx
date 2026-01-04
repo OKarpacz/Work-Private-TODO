@@ -1,6 +1,30 @@
-import React from 'react';
-import { ArrowLeft, Calendar, TrendingUp, User, Briefcase, Home } from 'lucide-react';
-import { Task, TaskCategory } from '../App';
+import React from "react";
+import { ArrowLeft, Calendar, TrendingUp, User, Briefcase, Home, type LucideIcon } from "lucide-react";
+import { Task, TaskCategory } from "../App";
+
+type CategoryConfig = {
+  color: string;
+  icon: LucideIcon;
+  label: string;
+};
+
+const CATEGORIES: Record<TaskCategory, CategoryConfig> = {
+  private: {
+    color: "#3B82F6",
+    icon: User,
+    label: "Private",
+  },
+  work: {
+    color: "#F59E0B",
+    icon: Briefcase,
+    label: "Work",
+  },
+  home: {
+    color: "#10B981",
+    icon: Home,
+    label: "Home",
+  },
+};
 
 interface WeeklyWidgetProps {
   tasks: Task[];
@@ -39,20 +63,13 @@ export function WeeklyWidget({ tasks, hideWorkTasks, onNavigate }: WeeklyWidgetP
   };
 
   const getCategoryColor = (category: TaskCategory) => {
-    switch (category) {
-      case 'private': return '#3B82F6';
-      case 'work': return '#F59E0B';
-      case 'home': return '#10B981';
-    }
+    return CATEGORIES[category].color;
   };
-
+  
   const getCategoryIcon = (category: TaskCategory) => {
-    switch (category) {
-      case 'private': return User;
-      case 'work': return Briefcase;
-      case 'home': return Home;
-    }
+    return CATEGORIES[category].icon;
   };
+  
 
   const getDayName = (date: Date) => {
     return date.toLocaleDateString('pl-PL', { weekday: 'short' }).toUpperCase();
