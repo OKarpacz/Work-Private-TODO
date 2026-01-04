@@ -1,13 +1,5 @@
 import React, { useState } from 'react';
-import {
-  LogIn,
-  Mail,
-  Lock,
-  CheckCircle2,
-  Briefcase,
-  Home,
-  User,
-} from 'lucide-react';
+import {LogIn, Mail, Lock, CheckCircle2, Briefcase, Home, User, } from 'lucide-react';
 
 interface LoginProps {
   onLogin: () => void;
@@ -52,7 +44,6 @@ export function Login({ onLogin, darkMode }: LoginProps) {
     setError(null);
 
  
-
     if (!isValidEmail(email)) {
       setError('Podaj poprawny adres email.');
       return;
@@ -89,7 +80,7 @@ export function Login({ onLogin, darkMode }: LoginProps) {
 
   return (
     <div className="h-full flex flex-col bg-white dark:bg-gray-800 overflow-hidden">
-      {/* ===== HEADER ===== */}
+     
       <div className="relative overflow-hidden px-8 pt-16 pb-12">
         <div className="absolute inset-0 overflow-hidden">
           <div
@@ -135,7 +126,7 @@ export function Login({ onLogin, darkMode }: LoginProps) {
         </div>
       </div>
 
-      {/* ===== FORM ===== */}
+     
       <div className="flex-1 px-8 pb-8">
         <form onSubmit={handleSubmit} className="space-y-5">
           {error && (
@@ -215,22 +206,13 @@ export function Login({ onLogin, darkMode }: LoginProps) {
           </button>
         </form>
 
-        {/* ===== FEATURES ===== */}
+        
         <div className="mt-12 space-y-4">
           {[
-            {
-              text:
-                'Zarządzaj zadaniami prywatnymi, służbowymi i domowymi',
-              color: '#3B82F6',
-            },
-            {
-              text: 'Automatyczne ukrywanie pracy po godzinach',
-              color: '#F59E0B',
-            },
-            {
-              text: 'Współdziel zadania z rodziną i zespołem',
-              color: '#10B981',
-            },
+            { text: 'Zarządzaj zadaniami prywatnymi, służbowymi i domowymi', color: '#3B82F6' },
+            { text: 'Automatyczne ukrywanie pracy po godzinach', color: '#F59E0B' },
+            { text: 'Współdziel zadania z rodziną i zespołem', color: '#10B981' },
+            
           ].map((feature, index) => (
             <div key={index} className="flex items-start gap-3">
               <div
