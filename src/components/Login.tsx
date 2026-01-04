@@ -1,14 +1,6 @@
 import React, { useState } from 'react';
-import {
-  LogIn,
-  Mail,
-  Lock,
-  CheckCircle2,
-  Briefcase,
-  Home,
-  User,
-  UserPlus,
-} from 'lucide-react';
+import {LogIn, Mail, Lock, CheckCircle2, Briefcase, Home, User, } from 'lucide-react';
+
 import { projectId, publicAnonKey } from '../utils/supabase/info';
 import { getSupabaseClient } from '../utils/supabase/client';
 
@@ -17,7 +9,7 @@ interface LoginProps {
   darkMode: boolean;
 }
 
-/* ===== WALIDACJA ===== */
+
 const isValidEmail = (email: string): boolean =>
   /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
 
@@ -26,7 +18,7 @@ const isValidPassword = (password: string): boolean =>
     password
   );
 
-/* ===== MAPOWANIE BŁĘDÓW AUTH ===== */
+
 const mapAuthError = (err: any): string => {
   if (!err) return 'Wystąpił nieznany błąd.';
   if (err.status === 400 || err.status === 401) {
