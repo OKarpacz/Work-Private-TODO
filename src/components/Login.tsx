@@ -12,7 +12,6 @@ const categories = [
   { icon: Home, color: '#10B981', label: 'Home' },
 ] as const;
 
-
 const isValidEmail = (email: string): boolean =>
   /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
 
@@ -32,8 +31,7 @@ const isValidPassword = (password: string): boolean => {
   );
 };
 
-
-export function Login({ onLogin, darkMode }: LoginProps) {
+export function Login({ onLogin }: LoginProps) {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [isLoading, setIsLoading] = useState(false);
@@ -43,7 +41,6 @@ export function Login({ onLogin, darkMode }: LoginProps) {
     e.preventDefault();
     setError(null);
 
- 
     if (!isValidEmail(email)) {
       setError('Podaj poprawny adres email.');
       return;
@@ -58,18 +55,7 @@ export function Login({ onLogin, darkMode }: LoginProps) {
 
     try {
       setIsLoading(true);
-
-      
-      await new Promise<void>((resolve, reject) =>
-        setTimeout(() => {
-          if (email === email && password === password) {
-            resolve();
-          } else {
-            reject(new Error('Nieprawidłowy email lub hasło.'));
-          }
-        }, 1000)
-      );
-
+      await new Promise<void>((resolve) => setTimeout(resolve, 1000));
       onLogin();
     } catch (err) {
       setError((err as Error).message);
@@ -80,25 +66,10 @@ export function Login({ onLogin, darkMode }: LoginProps) {
 
   return (
     <div className="h-full flex flex-col bg-white dark:bg-gray-800 overflow-hidden">
-     
       <div className="relative overflow-hidden px-8 pt-16 pb-12">
         <div className="absolute inset-0 overflow-hidden">
-          <div
-            className="absolute w-64 h-64 rounded-full blur-3xl opacity-20"
-            style={{
-              background: 'linear-gradient(135deg, #3B82F6 0%, #8B5CF6 100%)',
-              top: '-80px',
-              right: '-80px',
-            }}
-          />
-          <div
-            className="absolute w-48 h-48 rounded-full blur-3xl opacity-20"
-            style={{
-              background: 'linear-gradient(135deg, #F59E0B 0%, #EF4444 100%)',
-              bottom: '-40px',
-              left: '-40px',
-            }}
-          />
+          <div className="absolute -top-20 -right-20 w-64 h-64 rounded-full bg-gradient-to-br from-blue-500 to-violet-500 blur-3xl opacity-20" />
+          <div className="absolute -bottom-10 -left-10 w-48 h-48 rounded-full bg-gradient-to-br from-amber-500 to-red-500 blur-3xl opacity-20" />
         </div>
 
         <div className="relative z-10 text-center">
@@ -126,7 +97,6 @@ export function Login({ onLogin, darkMode }: LoginProps) {
         </div>
       </div>
 
-     
       <div className="flex-1 px-8 pb-8">
         <form onSubmit={handleSubmit} className="space-y-5">
           {error && (
@@ -148,7 +118,7 @@ export function Login({ onLogin, darkMode }: LoginProps) {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 placeholder="twoj@email.com"
-                className="w-full pl-12 pr-4 py-4 bg-gray-50 dark:bg-gray-700 border-0 rounded-2xl text-gray-900 dark:text-white placeholder:text-gray-400 dark:placeholder:text-gray-500 focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400 transition-all"
+                className="w-full pl-12 pr-4 py-4 bg-gray-50 dark:bg-gray-700 border-0 rounded-2xl text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500"
               />
             </div>
           </div>
@@ -166,7 +136,7 @@ export function Login({ onLogin, darkMode }: LoginProps) {
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 placeholder="••••••••"
-                className="w-full pl-12 pr-4 py-4 bg-gray-50 dark:bg-gray-700 border-0 rounded-2xl text-gray-900 dark:text-white placeholder:text-gray-400 dark:placeholder:text-gray-500 focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400 transition-all"
+                className="w-full pl-12 pr-4 py-4 bg-gray-50 dark:bg-gray-700 border-0 rounded-2xl text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500"
               />
               <p className="text-xs text-gray-500 mt-1">
                 Min. 8 znaków, duża i mała litera, cyfra, znak specjalny
@@ -174,23 +144,10 @@ export function Login({ onLogin, darkMode }: LoginProps) {
             </div>
           </div>
 
-          <div className="text-right">
-            <button
-              type="button"
-              className="text-blue-500 dark:text-blue-400 hover:underline"
-            >
-              Zapomniałeś hasła?
-            </button>
-          </div>
-
           <button
             type="submit"
             disabled={isLoading}
-            className="w-full py-4 rounded-2xl text-white flex items-center justify-center gap-2 transition-all duration-300 hover:opacity-90 disabled:opacity-50 mt-8"
-            style={{
-              background:
-                'linear-gradient(135deg, #3B82F6 0%, #8B5CF6 100%)',
-            }}
+            className="w-full py-4 rounded-2xl text-white flex items-center justify-center gap-2 bg-gradient-to-br from-blue-500 to-violet-500 hover:opacity-90 disabled:opacity-50 mt-8"
           >
             {isLoading ? (
               <>
@@ -206,13 +163,12 @@ export function Login({ onLogin, darkMode }: LoginProps) {
           </button>
         </form>
 
-        
         <div className="mt-12 space-y-4">
           {[
             { text: 'Zarządzaj zadaniami prywatnymi, służbowymi i domowymi', color: '#3B82F6' },
             { text: 'Automatyczne ukrywanie pracy po godzinach', color: '#F59E0B' },
             { text: 'Współdziel zadania z rodziną i zespołem', color: '#10B981' },
-            
+                   
           ].map((feature, index) => (
             <div key={index} className="flex items-start gap-3">
               <div
@@ -235,3 +191,6 @@ export function Login({ onLogin, darkMode }: LoginProps) {
     </div>
   );
 }
+
+     
+      
