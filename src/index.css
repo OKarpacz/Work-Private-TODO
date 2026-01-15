@@ -571,10 +571,6 @@
     display: grid;
   }
 
-  .hidden {
-    display: none;
-  }
-
   .inline-flex {
     display: inline-flex;
   }
@@ -1191,10 +1187,6 @@
 
   .pb-24 {
     padding-bottom: calc(var(--spacing) * 24);
-  }
-
-  .pl-4 {
-    padding-left: calc(var(--spacing) * 4);
   }
 
   .pl-12 {
@@ -2203,4 +2195,23 @@ html {
   to {
     transform: rotate(360deg);
   }
+}
+@keyframes hideTask {
+  from {
+    opacity: 1; 
+    transform: scale(1); 
+  }
+  to {
+    opacity: 0; 
+    transform: scale(0.95); 
+  }
+}
+
+.task-hide {
+  animation: hideTask 0.5s ease forwards; 
+  pointer-events: none; 
+}
+.task-animating {
+  background-color: var(--task-color);
+  transition: background-color 0.5s ease;
 }

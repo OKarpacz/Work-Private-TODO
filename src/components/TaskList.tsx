@@ -147,86 +147,92 @@ export function TaskList({
         ) : (
           <div className="space-y-3">
             {sortedTasks.map(task => {
-              const categoryColor = getCategoryColor(task.category);
-              const priorityColor = getPriorityColor(task.priority);
-              const overdue = !task.completed && isOverdue(task.dueDate);
+  const categoryColor = getCategoryColor(task.category);
+  const priorityColor = getPriorityColor(task.priority);
+  const overdue = !task.completed && isOverdue(task.dueDate);
 
-              return (
-                <div
-                  key={task.id}
-                  onClick={() => onTaskClick(task)}
-                  className="bg-white dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-2xl p-4 hover:shadow-md transition-all cursor-pointer"
-                  style={{
-                    opacity: task.completed ? 0.6 : 1,
-                  }}
-                >
-                  <div className="flex items-start gap-3">
-                    <button
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        onToggleComplete(task.id);
-                      }}
-                      className="mt-0.5 flex-shrink-0"
-                    >
-                      {task.completed ? (
-                        <CheckCircle2 
-                          size={24} 
-                          className="text-green-500"
-                          fill="currentColor"
-                        />
-                      ) : (
-                        <Circle 
-                          size={24} 
-                          style={{ color: categoryColor }}
-                        />
-                      )}
-                    </button>
+  return (
+<div
+  key={task.id}
+  id={`task-${task.id}`}
+  onClick={() => onTaskClick(task)}
+  className="bg-white dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-2xl p-4 hover:shadow-md transition-all cursor-pointer"
+  style={{
+    opacity: task.completed ? 0.6 : 1, 
+  }}
+    >
+      <div className="flex items-start gap-3">
+      <button
+  onClick={(e) => {
+    e.stopPropagation();
+    onToggleComplete(task.id);
+  }}
+  className="mt-0.5 flex-shrink-0"
+  style={{
+    backgroundColor: task.completed ? categoryColor : 'transparent', 
+    borderRadius: '50%', 
+    padding: '4px', 
+    transition: 'background-color 0.3s ease', 
+  }}
+>
+  {task.completed ? (
+    <CheckCircle2 
+      size={24} 
+      fill="white" 
+    />
+  ) : (
+    <Circle 
+      size={24} 
+      style={{ color: categoryColor }}
+    />
+  )}
+</button>
 
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-start justify-between gap-2 mb-2">
-                        <p 
-                          className="text-gray-900 dark:text-gray-100"
-                          style={{
-                            textDecoration: task.completed ? 'line-through' : 'none',
-                          }}
-                        >
-                          {task.title}
-                        </p>
-                        <div
-                          className="px-2 py-0.5 rounded-full text-xs flex-shrink-0"
-                          style={{
-                            backgroundColor: `${priorityColor}20`,
-                            color: priorityColor,
-                          }}
-                        >
-                          {getPriorityLabel(task.priority)}
-                        </div>
-                      </div>
+        <div className="flex-1 min-w-0">
+          <div className="flex items-start justify-between gap-2 mb-2">
+            <p 
+              className="text-gray-900 dark:text-gray-100"
+              style={{
+                textDecoration: task.completed ? 'line-through' : 'none',
+              }}
+            >
+              {task.title}
+            </p>
+            <div
+              className="px-2 py-0.5 rounded-full text-xs flex-shrink-0"
+              style={{
+                backgroundColor: `${priorityColor}20`,
+                color: priorityColor,
+              }}
+            >
+              {getPriorityLabel(task.priority)}
+            </div>
+          </div>
 
-                      <div className="flex items-center gap-3 flex-wrap">
-                        <div 
-                          className="flex items-center gap-1.5 text-sm"
-                          style={{ 
-                            color: overdue ? '#EF4444' : '#6B7280' 
-                          }}
-                        >
-                          <Clock size={14} />
-                          <span>{formatDate(task.dueDate)}{task.dueTime ? ` ${task.dueTime}` : ''}</span>
-                          {overdue && <span className="text-red-600">• Zaległe</span>}
-                        </div>
+          <div className="flex items-center gap-3 flex-wrap">
+            <div 
+              className="flex items-center gap-1.5 text-sm"
+              style={{ 
+                color: overdue ? '#EF4444' : '#6B7280' 
+              }}
+            >
+              <Clock size={14} />
+              <span>{formatDate(task.dueDate)}{task.dueTime ? ` ${task.dueTime}` : ''}</span>
+              {overdue && <span className="text-red-600">• Zaległe</span>}
+            </div>
 
-                        {task.assignedUsers && task.assignedUsers.length > 0 && (
-                          <div className="flex items-center gap-1.5 text-gray-500 text-sm">
-                            <User size={14} />
-                            <span>{task.assignedUsers.length} {task.assignedUsers.length === 1 ? 'osoba' : 'osób'}</span>
-                          </div>
-                        )}
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              );
-            })}
+            {task.assignedUsers && task.assignedUsers.length > 0 && (
+              <div className="flex items-center gap-1.5 text-gray-500 text-sm">
+                <User size={14} />
+                <span>{task.assignedUsers.length} {task.assignedUsers.length === 1 ? 'osoba' : 'osób'}</span>
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+})}
           </div>
         )}
       </div>

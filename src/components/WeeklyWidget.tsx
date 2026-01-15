@@ -1,26 +1,47 @@
-import React from 'react';
-import { ArrowLeft, Calendar, TrendingUp, User, Briefcase, Home } from 'lucide-react';
-import { Task, TaskCategory } from '../App';
+import React from "react";
+import { ArrowLeft, Calendar, TrendingUp, User, Briefcase, Home, type LucideIcon } from "lucide-react";
+import { Task, TaskCategory } from "../App";
+
+type CategoryConfig = {
+  color: string;
+  icon: LucideIcon;
+  label: string;
+};
+
+const CATEGORIES: Record<TaskCategory, CategoryConfig> = {
+  private: {
+    color: "#3B82F6",
+    icon: User,
+    label: "Private",
+  },
+  work: {
+    color: "#F59E0B",
+    icon: Briefcase,
+    label: "Work",
+  },
+  home: {
+    color: "#10B981",
+    icon: Home,
+    label: "Home",
+  },
+};
 
 interface WeeklyWidgetProps {
   tasks: Task[];
   hideWorkTasks: boolean;
-  onNavigate: (screen: any, task?: Task) => void;
+  onNavigate: (screen: any) => void;
 }
 
 export function WeeklyWidget({ tasks, hideWorkTasks, onNavigate }: WeeklyWidgetProps) {
-  
   const getWeekDays = () => {
     const today = new Date();
     const days = [];
     
     const startOfWeek = new Date(today);
     const dayOfWeek = startOfWeek.getDay();
+    const diff = dayOfWeek === 0 ? -6 : 1 - dayOfWeek;
+    startOfWeek.setDate(startOfWeek.getDate() + diff);
     
-    const daysToSubtract = dayOfWeek === 0 ? 6 : dayOfWeek - 1;
-    startOfWeek.setDate(startOfWeek.getDate() - daysToSubtract);
-    
-
     for (let i = 0; i < 7; i++) {
       const date = new Date(startOfWeek);
       date.setDate(startOfWeek.getDate() + i);
@@ -35,35 +56,20 @@ export function WeeklyWidget({ tasks, hideWorkTasks, onNavigate }: WeeklyWidgetP
 
   const getTasksForDate = (date: Date) => {
     const dateStr = date.toISOString().split('T')[0];
-    
-    const filtered = tasks.filter(t => {
-      const matchesDate = t.dueDate === dateStr;
-      const isCompleted = t.completed;
-      const isWorkAndHidden = hideWorkTasks && t.category === 'work';
-      
-      
-      if (isWorkAndHidden) return false;
-      return matchesDate && !isCompleted;
+    return tasks.filter(t => {
+      if (hideWorkTasks && t.category === 'work') return false;
+      return t.dueDate === dateStr && !t.completed;
     });
-    
-    return filtered;
   };
 
   const getCategoryColor = (category: TaskCategory) => {
-    switch (category) {
-      case 'private': return '#3B82F6';
-      case 'work': return '#F59E0B';
-      case 'home': return '#10B981';
-    }
+    return CATEGORIES[category].color;
   };
-
+  
   const getCategoryIcon = (category: TaskCategory) => {
-    switch (category) {
-      case 'private': return User;
-      case 'work': return Briefcase;
-      case 'home': return Home;
-    }
+    return CATEGORIES[category].icon;
   };
+  
 
   const getDayName = (date: Date) => {
     return date.toLocaleDateString('pl-PL', { weekday: 'short' }).toUpperCase();
@@ -179,9 +185,7 @@ export function WeeklyWidget({ tasks, hideWorkTasks, onNavigate }: WeeklyWidgetP
                       return (
                         <button
                           key={task.id}
-                          onClick={() => {
-                            onNavigate('taskDetails', task);
-                          }}
+                          onClick={() => onNavigate('taskDetails', task)}
                           className="w-full flex items-start gap-3 p-3 rounded-xl bg-gray-50 dark:bg-gray-600 hover:bg-gray-100 dark:hover:bg-gray-500 transition-colors text-left"
                         >
                           <div
