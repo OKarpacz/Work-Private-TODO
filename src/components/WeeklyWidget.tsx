@@ -35,21 +35,21 @@ interface WeeklyWidgetProps {
 export function WeeklyWidget({ tasks, hideWorkTasks, onNavigate }: WeeklyWidgetProps) {
   const getWeekDays = () => {
     const today = new Date();
-    const days = [];
-    
-    const startOfWeek = new Date(today);
-    const dayOfWeek = startOfWeek.getDay();
-    const diff = dayOfWeek === 0 ? -6 : 1 - dayOfWeek;
-    startOfWeek.setDate(startOfWeek.getDate() + diff);
-    
-    for (let i = 0; i < 7; i++) {
-      const date = new Date(startOfWeek);
-      date.setDate(startOfWeek.getDate() + i);
-      days.push(date);
-    }
-    
-    return days;
+    const daysFromMonday = (today.getDay() || 7) - 1;
+  
+    const monday = getDayWithOffset(today, -daysFromMonday);
+  
+    return Array.from({ length: 7 }, (_, i) => getDayWithOffset(monday, i));
   };
+  
+  function getDayWithOffset(start: Date, offset: number) {
+    return new Date(Date.UTC(
+      start.getFullYear(),
+      start.getMonth(),
+      start.getDate() + offset
+    ));
+  }
+  
 
   const weekDays = getWeekDays();
   const today = new Date().toISOString().split('T')[0];
