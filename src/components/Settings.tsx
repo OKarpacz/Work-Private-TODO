@@ -138,44 +138,6 @@ export function Settings({ settings, onUpdateSettings, onNavigate, onLogout }: S
           </div>
 
           <div>
-            <h2 className="text-gray-900 dark:text-gray-100 mb-4">Powiadomienia</h2>
-            
-            <div className="space-y-3">
-              <div className="bg-white dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-2xl p-4">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-xl bg-blue-50 dark:bg-blue-900/30 flex items-center justify-center">
-                      <Bell size={20} className="text-blue-600 dark:text-blue-400" />
-                    </div>
-                    <div>
-                      <p className="text-gray-900 dark:text-gray-100">Powiadomienia push</p>
-                      <p className="text-gray-500 dark:text-gray-400 text-sm">Otrzymuj przypomnienia o zadaniach</p>
-                    </div>
-                  </div>
-                  <button
-                    onClick={() => onUpdateSettings({ 
-                      notifications: !settings.notifications 
-                    })}
-                    className="relative w-12 h-6 rounded-full transition-colors"
-                    style={{
-                      backgroundColor: settings.notifications ? '#3B82F6' : '#D1D5DB',
-                    }}
-                  >
-                    <div
-                      className="absolute top-1 w-4 h-4 bg-white rounded-full transition-transform shadow-sm"
-                      style={{
-                        transform: settings.notifications 
-                          ? 'translateX(26px)' 
-                          : 'translateX(4px)',
-                      }}
-                    />
-                  </button>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <div>
             <h2 className="text-gray-900 dark:text-gray-100 mb-4">Informacje</h2>
             
             <div className="space-y-3">
