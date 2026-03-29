@@ -26,6 +26,17 @@ const CATEGORIES: Record<TaskCategory, CategoryConfig> = {
   },
 };
 
+const DEFAULT_CATEGORY_CONFIG: CategoryConfig = {
+  color: "#6B7280", 
+  icon: User,       
+  label: "Other",
+};
+
+const getCategoryConfig = (category: TaskCategory): CategoryConfig => {
+  return CATEGORIES[category] ?? DEFAULT_CATEGORY_CONFIG;
+};
+
+
 interface WeeklyWidgetProps {
   tasks: Task[];
   hideWorkTasks: boolean;
@@ -63,13 +74,12 @@ export function WeeklyWidget({ tasks, hideWorkTasks, onNavigate }: WeeklyWidgetP
   };
 
   const getCategoryColor = (category: TaskCategory) => {
-    return CATEGORIES[category].color;
+    return getCategoryConfig(category).color;
   };
   
   const getCategoryIcon = (category: TaskCategory) => {
-    return CATEGORIES[category].icon;
-  };
-  
+    return getCategoryConfig(category).icon;
+  };  
 
   const getDayName = (date: Date) => {
     return date.toLocaleDateString('pl-PL', { weekday: 'short' }).toUpperCase();
